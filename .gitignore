@@ -10,6 +10,12 @@
 *.userosscache
 *.sln.docstates
 
+# Environment settings (possible credential leaks)
+appsettings.json
+local.settings.json
+app.settings
+*.env
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
@@ -383,6 +389,9 @@ FodyWeavers.xsd
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
+
+# VS Code C# Dev Kit
+.mono/
 
 # Local History for Visual Studio Code
 .history/
