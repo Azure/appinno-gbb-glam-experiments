@@ -1,0 +1,20 @@
+{
+    "Logging": {
+        "LogLevel": {
+            "Default": "Information",
+            "Microsoft.AspNetCore": "Warning"
+        }
+    },
+    "Settings": {
+        "NgaOpenDataPostgresqlConnectionString": "",
+        "AzureAiVisionKey": "",
+        "AzureAiVisionEndpoint": "https://YOUR-CV-NAME.cognitiveservices.azure.com/",
+        "AzureAiVisionEmbeddingsApiVersion": "2024-02-01",
+        "AzureAiVisionEmbeddingsModelVersion": "2023-04-15",
+        "AzureAiSearchKey": "",
+        "AzureAiSearchEndpoint": "https://YOUR-SEARCH-NAME.search.windows.net",
+        "AzureAiSearchIndexName": "",
+        "DropAndRecreateIndexIfItExists": true,
+        "RecordCountToIndex": -1 /* If -1 all records will be queried; otherwise, limited to this count. */
+    }
+}

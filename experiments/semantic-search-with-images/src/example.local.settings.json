@@ -1,0 +1,15 @@
+{
+    "IsEncrypted": false,
+    "Values": {
+        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+        "AiVisionOptions:Key": "",
+        "AiVisionOptions:Endpoint": "https://YOUR-CV-NAME.cognitiveservices.azure.com/",
+        "AiVisionOptions:MultimodalEmbeddingsApiVersion": "2024-02-01",
+        "AiVisionOptions:MultimodalEmbeddingsModelVersion": "2023-04-15",
+        "AiSearchOptions:Key": "",
+        "AiSearchOptions:Endpoint": "https://YOUR-SEARCH-NAME.search.windows.net",
+        "AiSearchOptions:IndexName": "",
+        "AiSearchOptions:IndexImageVectorsFieldName": ""
+    }
+}

@@ -1,14 +1,37 @@
-# Project
+# GLAM Experiments
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+> "GLAM is an acronymn for galleries, libraries, archives, and museums, and refers to cultural institutions with a mission to provide access to knowledge."
+> <div align="right">from <a href="https://en.wikipedia.org/wiki/GLAM_(cultural_heritage)">Wikipedia</a></div>
 
-As the maintainer of this project, please make a few updates:
+## Purpose
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+This repository contains several samples in support of cultural institution use cases with Generative AI and advanced AI Vision capabilities. Samples are either small experiments used to help understand the underlying tech and capabilities, or they're reference implementations of identified end-to-end solutions or patterns.
+
+### Experiments
+---
+- [Creating an Azure AI Search index including multi-modal image embeddings (vectors)](./experiments/create-search-index/README.md)
+- [Searching for most semantically similar images given an image or text](./experiments/semantic-search-with-images/README.md)
+- [Leveraging an LLM with vision to identify works of art in a broader image](./experiments/art-detection-by-llm/README.md)
+- [Generating meaningful, accessible descriptions of art](./experiments/art-descriptions/README.md)
+
+---
+
+Many of the experiments required some foundational data against which to search or use for LLM grounding. This repository includes a sample that builds an Azure AI Search index with works available from the [National Gallery of Art's Open Data Program](https://github.com/NationalGalleryOfArt/opendata), but any foundational data may be used.
+
+Experiments are not standardized -- they may use different programming languages, execution models, or just include written walkthroughs guiding through the online portal-based tooling. The intention is to capture what was investigated, and outcomes of those experiments may be used in a more cohesive end-to-end solution related to specific use cases and patterns.
+
+### Reference Implementations
+---
+- [Semantic Search for Images](./reference-implementations/semantic-search-for-images/README.md)
+
+---
+
+Reference implementations provide an end-to-end solution for a pattern or use case. Each reference impementation should include:
+| Artifact | Description |
+|----------|-------------|
+| `README.md` file | Describes the pattern or use case and information on how to build, run, and deploy the implementation |
+| `infra/` directory | Contains deployment scripts, Bicep, or other deployment artifacts so that the solution may be deployed |
+| `src/` directory | Contains the source code implementation -- either a single implementation or multiple implementations using different languages, frameworks, or dependencies all implementing the same pattern |
 
 ## Contributing
 

@@ -1,0 +1,9 @@
+{
+    "AzureComputerVisionUrl": "[Azure Computer Vision URL]",
+    "AzureComputerVisionKey": "[Azure Computer Vision Key]",
+    "AzureOpenAIUrl": "[Azure OpenAI URL]",
+    "AzureOpenAIKey": "[Azure OpenAI Key]",
+    "AzureOpenAIDeploymentName": "[Azure OpenAI Deployment Name]",
+    "AzureOpenAIApiVersion": "2023-12-01-preview",
+    "AzureOpenAIModelVersion": "latest"
+}
