@@ -1,0 +1,17 @@
+### LOCAL SearchByText
+
+POST http://localhost:7071/api/SearchByText
+Content-Type: application/json
+
+{
+    "text": "spooky and old"
+}
+
+### LOCAL SearchByImageUrl
+
+POST http://localhost:7071/api/SearchByImageUrl
+Content-Type: application/json
+
+{
+    "url": "https://images.metmuseum.org/CRDImages/rl/original/DT704.jpg"
+}
