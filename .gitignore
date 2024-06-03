@@ -405,3 +405,7 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Azurite local directories and files
+__*__
+__*__.*

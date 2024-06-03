@@ -10,8 +10,11 @@ public class Settings
     public string AzureAiSearchEndpoint { get; set; }
     public string AzureAiSearchIndexName { get; set; }
     public bool DropAndRecreateIndexIfItExists { get; set; }
-    public string NgaOpenDataPostgresqlConnectionString { get; set; }
+    public ExternalSourceType ExternalSourceType { get; set; }
+    public string ExternalSourceConnectionInfo { get; set; }
     public int RecordCountToIndex { get; set; }
+    public string ExternalSourceConnectionCosmosDatabase { get; }
+    public string ExternalSourceConnectionCosmosContainer { get; }
 
     public Settings()
     {
@@ -23,7 +26,17 @@ public class Settings
         this.AzureAiSearchEndpoint = string.Empty;
         this.AzureAiSearchIndexName = string.Empty;
         this.DropAndRecreateIndexIfItExists = true;
-        this.NgaOpenDataPostgresqlConnectionString = string.Empty;
+        this.ExternalSourceType = ExternalSourceType.MET;
+        this.ExternalSourceConnectionInfo = string.Empty;
         this.RecordCountToIndex = -1;
+        this.ExternalSourceConnectionCosmosDatabase = "met-openaccess-api";
+        this.ExternalSourceConnectionCosmosContainer = "objects";
     }
+
+}
+
+public enum ExternalSourceType
+{
+    MET,
+    NGA
 }

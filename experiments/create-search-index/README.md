@@ -7,14 +7,16 @@ Leverage Azure AI Vision's multi-modal image embeddings to support semantic sear
 ## Approach: Locally Run Console Application with Document Upload
 
 For this implementation, we used a C# Console Application that was executed locally to populate the index. It was responsible for:
-  - Querying the NGA Open Data Program data to get all objects
+  - Querying the NGA Open Data Program data or The Met's Open Access APIs to get all objects
   - For all objects with an image URL:
     - Generate multi-modal image embeddings via the AI Vision v4 API
     - Create and upload a document to the AI Search index including the embeddings and metadata from the object
 
 If the image URL does not exist, the object is skipped. If any errors are encountered generating the embeddings from the image, the object is skipped.
 
-The [National Gallery of Art Open Data Program](https://github.com/NationalGalleryOfArt/opendata) provides CSV-formatted files that can be loaded into a relational database. A PostgreSQL database is recommended, and the console app assumes that database exists and has been seeded.
+The [National Gallery of Art Open Data Program](https://github.com/NationalGalleryOfArt/opendata) provides CSV-formatted files that can be loaded into a relational database. A PostgreSQL database is recommended, and the console app assumes that database exists and has been seeded if you choose to use NGA as a source. 
+
+[The Metropolitan Museum of Art Open Access Initiative](https://www.metmuseum.org/about-the-met/policies-and-documents/open-access) makes all images of public-domain artworks and basic data on all accessioned works in its collection available for unrestricted use under Creative Commons Zero. While a CSV file is available, this experiment includes a pre-processor that uses their [API](https://metmuseum.github.io/) to pull a list of all objects with images and then stores all available object data in an Azure Cosmos DB container.
 
 ### Resources Summary
 
@@ -22,7 +24,8 @@ The [National Gallery of Art Open Data Program](https://github.com/NationalGalle
 | -------------- | ------ |
 | AI Search | Refer to the [vector search quickstart](https://learn.microsoft.com/en-us/azure/search/search-get-started-vector) for any notes or constraints. |
 | Computer Vision | See any notes or regional constraints in the [docs](https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/how-to/image-retrieval?tabs=csharp). |
-| Database for PostgreSQL - Flexible Server | Assumes it exists and has been seeded with NGA's Open Data Program data. Check the docs to see how to create an instance using the [portal](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/quickstart-create-server-portal) or [Azure CLI](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/quickstart-create-server-cli) |
+| Database for PostgreSQL - Flexible Server | **Required: NGA** Assumes it exists and has been seeded with NGA's Open Data Program data. Check the docs to see how to create an instance using the [portal](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/quickstart-create-server-portal) or [Azure CLI](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/quickstart-create-server-cli). |
+| Azure Cosmos DB - NoSQL | **Required: MET** Check the docs to see how to create an instance using the [portal](https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/quickstart-portal). |
 
 ### Findings
 

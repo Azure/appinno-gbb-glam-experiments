@@ -14,4 +14,5 @@ public class AiSearchOptions
     public string Endpoint { get; set; } = string.Empty;
     public string IndexName { get; set; } = string.Empty;
     public string IndexImageVectorsFieldName { get; set; } = string.Empty;
+    public int TopNCount { get; set; } = 3;
 }
