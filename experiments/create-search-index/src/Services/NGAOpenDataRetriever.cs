@@ -3,14 +3,15 @@ using Npgsql;
 
 namespace Indexer.Services;
 
-public class NGAOpenDataRetriever(Settings settings)
+public class NGAOpenDataRetriever(Settings settings) : BaseRetriever(settings)
 {
-    private readonly string _connectionString = settings.NgaOpenDataPostgresqlConnectionString;
-    private readonly int _recordLimit = settings.RecordCountToIndex;
+    // For NGA Open Data, we assume the data is in a PostgresQL database, so this
+    // value should be a connection string.
+    private readonly string _connectionString = settings.ExternalSourceConnectionInfo;
 
-    public async Task<IEnumerable<NGAOpenDataRecord>> GetAllNGAOpenDataRecords() 
+    public override async Task<IEnumerable<IndexDocument>> GetAllRecords() 
     {
-        var records = new List<NGAOpenDataRecord>();
+        var indexRecords = new List<IndexDocument>();
 
         await using var conn = new NpgsqlConnection(_connectionString);
         await conn.OpenAsync();
@@ -54,9 +55,9 @@ from objects o
         group by objectID, termtype) ot_theme on o.objectID = ot_theme.objectID and ot_theme.termtype = 'Theme'
 where pi.iiifURL <> ''";
         
-        if (_recordLimit > 0)
+        if (base._recordLimit > 0)
         {
-            command += $" limit {_recordLimit};";
+            command += $" limit {base._recordLimit};";
         }
         else
         {
@@ -67,29 +68,22 @@ where pi.iiifURL <> ''";
         await using var reader = await cmd.ExecuteReaderAsync();
         while (await reader.ReadAsync())
         {
-            NGAOpenDataRecord record = new(
-                GetStringValue(reader, 0),
-                GetStringValue(reader, 1),
-                GetStringValue(reader, 2),
-                GetStringValue(reader, 3),
-                GetStringValue(reader, 4),
-                GetStringValue(reader, 5),
-                GetStringValue(reader, 6),
-                GetStringValue(reader, 7),
-                GetStringValue(reader, 8),
-                GetStringValue(reader, 9),
-                GetStringValue(reader, 10),
-                GetStringValue(reader, 11),
-                GetStringValue(reader, 12),
-                GetStringValue(reader, 13),
-                GetStringValue(reader, 14)
-            );
-            records.Add(record);
+            IndexDocument document = new(){
+                ObjectID = GetStringValue(reader, 0),
+                AccessionNum = GetStringValue(reader, 1),
+                Title = GetStringValue(reader, 2),
+                DisplayDate = GetStringValue(reader, 3),
+                Medium = GetStringValue(reader, 4),
+                Attribution = GetStringValue(reader, 5),
+                LocationDescription = GetStringValue(reader, 6),
+                ImageUrl = $"{GetStringValue(reader, 7)}/full/!600,600/0/default.jpg"
+            };
+            indexRecords.Add(document);
         }
 
-        Console.WriteLine($"Retrieved {records.Count} records from NGA OpenData store.");
+        Console.WriteLine($"Retrieved {indexRecords.Count} records from NGA OpenData store.");
 
-        return records;
+        return indexRecords;
     }
 
     private static string GetStringValue(NpgsqlDataReader reader, int ordinal) 
