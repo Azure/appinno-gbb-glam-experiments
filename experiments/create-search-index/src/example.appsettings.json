@@ -6,7 +6,6 @@
         }
     },
     "Settings": {
-        "NgaOpenDataPostgresqlConnectionString": "",
         "AzureAiVisionKey": "",
         "AzureAiVisionEndpoint": "https://YOUR-CV-NAME.cognitiveservices.azure.com/",
         "AzureAiVisionEmbeddingsApiVersion": "2024-02-01",
@@ -15,6 +14,8 @@
         "AzureAiSearchEndpoint": "https://YOUR-SEARCH-NAME.search.windows.net",
         "AzureAiSearchIndexName": "",
         "DropAndRecreateIndexIfItExists": true,
+        "ExternalSource": "MET", /* MET | NGA, Defaults to MET */
+        "ExternalSourceConnectionInfo": "", /* Connection information specific to the type of source data. */
         "RecordCountToIndex": -1 /* If -1 all records will be queried; otherwise, limited to this count. */
     }
 }

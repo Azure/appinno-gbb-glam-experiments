@@ -3,13 +3,17 @@
     "Values": {
         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
         "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-        "AiVisionOptions:Key": "",
-        "AiVisionOptions:Endpoint": "https://YOUR-CV-NAME.cognitiveservices.azure.com/",
-        "AiVisionOptions:MultimodalEmbeddingsApiVersion": "2024-02-01",
-        "AiVisionOptions:MultimodalEmbeddingsModelVersion": "2023-04-15",
-        "AiSearchOptions:Key": "",
-        "AiSearchOptions:Endpoint": "https://YOUR-SEARCH-NAME.search.windows.net",
-        "AiSearchOptions:IndexName": "",
-        "AiSearchOptions:IndexImageVectorsFieldName": ""
+        "AiVisionOptions__Key": "",
+        "AiVisionOptions__Endpoint": "https://YOUR-CV-NAME.cognitiveservices.azure.com/",
+        "AiVisionOptions__MultimodalEmbeddingsApiVersion": "2024-02-01",
+        "AiVisionOptions__MultimodalEmbeddingsModelVersion": "2023-04-15",
+        "AiSearchOptions__Key": "",
+        "AiSearchOptions__Endpoint": "https://YOUR-SEARCH-NAME.search.windows.net",
+        "AiSearchOptions__IndexName": "",
+        "AiSearchOptions__IndexImageVectorsFieldName": "",
+        "AiSearchOptions__TopNCount": 3
+    },
+    "Host": {
+        "CORS": "*"
     }
 }

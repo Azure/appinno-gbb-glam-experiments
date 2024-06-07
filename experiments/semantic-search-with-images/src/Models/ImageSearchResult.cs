@@ -7,10 +7,13 @@ public record SimilarImagesResult(
 
 public record ImageSearchResult(
     [property: JsonPropertyName("objectId")] string ObjectId,
+    [property: JsonPropertyName("accessionNum")] string AccessionNum,
     [property: JsonPropertyName("title")] string Title,
     [property: JsonPropertyName("attribution")] string Attribution,
     [property: JsonPropertyName("displayDate")] string DisplayDate,
     [property: JsonPropertyName("locationDescription")] string LocationDescription,
-    [property: JsonPropertyName("iiifThumbUrl")] string IiifThumbUrl,
+    [property: JsonPropertyName("medium")] string Medium,
+    [property: JsonPropertyName("dimensions")] string Dimensions,
+    [property: JsonPropertyName("imageUrl")] string ImageUrl,
     [property: JsonPropertyName("searchScore")] double? SearchScore
 );

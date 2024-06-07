@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using SemanticSearchWithImages;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureFunctionsWebApplication()
     .ConfigureServices(services => {
         services.AddOptions<AiVisionOptions>().Configure<IConfiguration>((settings, configuration) =>
         {
