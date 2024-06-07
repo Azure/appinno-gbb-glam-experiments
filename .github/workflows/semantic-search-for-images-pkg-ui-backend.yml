@@ -3,7 +3,7 @@ name: 'Packaging - Semantic Search for Images - UI - Backend'
 on:
   push:
     branches: [ $default-branch ]
-    paths: [ 'reference-implementation/semantic-search-for-images/src/ui-backend/**' ]
+    paths: [ 'reference-implementations/semantic-search-for-images/src/ui-backend/**' ]
   # Enable manual execution
   workflow_dispatch:
 
@@ -44,7 +44,7 @@ jobs:
       id: build-and-push
       uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
       with:
-        context: reference-implementation/semantic-search-for-images/src/ui-backend/
+        context: reference-implementations/semantic-search-for-images/src/ui-backend/
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
