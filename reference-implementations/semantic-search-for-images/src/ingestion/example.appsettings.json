@@ -1,0 +1,15 @@
+{
+    "AppSettings": {
+        "StorageAccountUri": "https://[Storage Account Name].blob.core.windows.net",
+        "StorageAccountImageCsvContainerName": "images",
+        "StorageAccountProcessedContainerName": "processed",
+        "CosmosDbUri": "https://[Cosmos Db Name].documents.azure.com:443",
+        "CosmosDbName": "imagesDb",
+        "CosmosDbImageVectorPath": "/imageVector",
+        "CosmosDbImageMetadataContainerName": "imageCsv",
+        "CosmosDbPartitionKey": "/objectId",
+        "AiServicesUri": "https://[AI Services Name].cognitiveservices.azure.com",
+        "AiServicesApiVersion": "2024-02-01",
+        "AiServicesModelVersion": "2023-04-15"
+    }
+}
