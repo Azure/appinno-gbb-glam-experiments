@@ -33,7 +33,7 @@ namespace ingestion {
         }
 
         /// <summary>
-        /// Ochestrates the ingestion of data from uploaded csv files.  Data from the csv files will be serialized and 
+        /// Orchestrates the ingestion of data from uploaded csv files.  Data from the csv files will be serialized and 
         /// uploaded to the database service that has been injected.
         /// </summary>
         public async Task IngestDataAsync() {
