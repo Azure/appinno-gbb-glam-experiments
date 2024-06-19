@@ -30,7 +30,7 @@ namespace ingestion.Services
         /// <returns>A list of ImageMetadata objects representing the records in the CSV file.</returns>
         public IList<ImageMetadata> GetRecords(MemoryStream memoryStream) {
 
-            var imageMetadata = new List<ImageMetadata>();
+            var imageMetadataList = new List<ImageMetadata>();
 
             using (var reader = new StreamReader(memoryStream))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
@@ -52,7 +52,7 @@ namespace ingestion.Services
 
                     foreach(DataRow row in dt.Rows)
                     {
-                        var metadata = new ImageMetadata(
+                        var imageMetadata = new ImageMetadata(
                             SafeGetValue(row, Constants.DATA_TABLE_COLUMN_NAME_OBJECT_ID),
                             SafeGetValue(row, Constants.DATA_TABLE_COLUMN_NAME_IMAGE_URL),
                             SafeGetValue(row, Constants.DATA_TABLE_COLUMN_NAME_ARTIST),
@@ -63,15 +63,15 @@ namespace ingestion.Services
 
                         foreach(var metadataColumn in metadataColumns)
                         {
-                            metadata.metadata.Add(metadataColumn.ColumnName, row[metadataColumn.ColumnName].ToString()!);
+                            imageMetadata.metadata.Add(metadataColumn.ColumnName, row[metadataColumn.ColumnName].ToString()!);
                         }
 
-                        imageMetadata.Add(metadata);
+                        imageMetadataList.Add(imageMetadata);
                     }
                 }
             }
 
-            return imageMetadata;
+            return imageMetadataList;
         }
 
         /// <summary>

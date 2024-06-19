@@ -53,7 +53,7 @@ public class Startup
                 .AddRetry(new RetryStrategyOptions{
                     MaxRetryAttempts = 3,
                     Delay = TimeSpan.FromSeconds(2),
-                    BackoffType = DelayBackoffType.Constant
+                    BackoffType = DelayBackoffType.Linear
                 
                 })
                 .AddTimeout(TimeSpan.FromSeconds(10));

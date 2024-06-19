@@ -58,8 +58,7 @@ namespace ingestion {
 
                 await Parallel.ForEachAsync(records, async (record, token) => {
                     try {
-                        var imageStream = await _imageService.DownloadImage(record.imageUrl);
-                        record.imageVector = await _imageService.GenerateImageEmbeddings(imageStream);
+                        record.imageVector = await _imageService.GenerateImageEmbeddings(record.imageUrl);
 
                         await _databaseService.UpsertItemAsync(record);
                     }

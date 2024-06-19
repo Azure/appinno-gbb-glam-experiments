@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Azure.Core;
 using ingestion.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,7 +44,7 @@ namespace ingestion.Services
         /// <param name="imageUrl">The URL of the image to download.</param>
         /// <returns>A stream containing the downloaded image.</returns>
         public async Task<Stream> DownloadImage(string imageUrl) {
-            if(string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
+            CheckForNullImageUrl(imageUrl);
             
             return await _resiliencePipeline.ExecuteAsync(async token => {
 
@@ -69,6 +70,30 @@ namespace ingestion.Services
             requestContent.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
             requestContent.Headers.ContentLength = imageStream.Length;
 
+            return await GenerateImageEmbeddings(requestContent);
+        }
+
+        /// <summary>
+        /// Generates embeddings for an image.
+        /// </summary>
+        /// <param name="imageUrl">Url of the image.</param>
+        /// <returns>An array of floats representing the image embeddings.</returns>
+        public async Task<float[]> GenerateImageEmbeddings(string imageUrl) {
+            CheckForNullImageUrl(imageUrl);
+            
+            var jsonPayload = JsonSerializer.Serialize(new { url = imageUrl });
+            var requestContent = new StringContent(jsonPayload, new MediaTypeHeaderValue("application/json"));
+
+            return await GenerateImageEmbeddings(requestContent);
+        }
+
+        /// <summary>
+        /// Generates embeddings for an image.
+        /// </summary>
+        /// <param name="requestContent">Http request content representing either an image stream or a json payload specifying the url of the image.</param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private async Task<float []> GenerateImageEmbeddings(HttpContent requestContent) {
             return await _resiliencePipeline.ExecuteAsync(async token => {
 
                 // Obtain a token from the token credential before making the call to the Vision endpoint so that appropriate token refresh can take place, if necessary.
@@ -82,12 +107,25 @@ namespace ingestion.Services
 
                 response.EnsureSuccessStatusCode();
 
+                if(!response.IsSuccessStatusCode) {
+                    if(requestContent is StreamContent streamContent)
+                        throw new Exception($"Error generating embeddings for stream content. Status code: {response.StatusCode}");
+                    else if(requestContent is StringContent stringContent)
+                        throw new Exception($"Error generating embeddings for {await stringContent.ReadAsStringAsync()}. Status code: {response.StatusCode}; Reason: {response.ReasonPhrase}");
+                    else
+                        throw new Exception($"Error generating embeddings. Status code: {response.StatusCode}");
+                }
+
                 var embeddingsResponse = await response.Content.ReadFromJsonAsync<MultimodalEmbeddingsApiResponse>()
                     ?? throw new Exception("Response not received or could not be serialized as expected.");
 
                 return embeddingsResponse.Vector;
 
             });
+        }
+
+        private void CheckForNullImageUrl(string imageUrl) {
+            if(string.IsNullOrEmpty(imageUrl)) throw new ArgumentNullException(nameof(imageUrl));
         }
     }
 }

@@ -10,6 +10,7 @@ namespace ingestion.Models
         public required string CosmosDbImageVectorPath { get; set; }
         public required string CosmosDbImageMetadataContainerName { get; set; }
         public required string CosmosDbPartitionkey { get; set; }
+        public required int CosmosDbRUs { get; set; }
         public required string AiServicesUri { get; set; }
         public required string AiServicesKey { get; set; }
         public required string AiServicesApiVersion { get; set; }

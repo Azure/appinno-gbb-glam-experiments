@@ -42,7 +42,7 @@ namespace ingestion.Services
                     Path = _appSettings.CosmosDbImageVectorPath,
                     DataType = VectorDataType.Float32,
                     DistanceFunction = DistanceFunction.Cosine,
-                    Dimensions = 1024,
+                    Dimensions = 1024
                 }
             };
             Collection<Embedding> collection = new Collection<Embedding>(embeddings);
@@ -62,7 +62,7 @@ namespace ingestion.Services
                 },
             };
             
-            _containerResponse = await cosmosDb.Database.CreateContainerIfNotExistsAsync(containerProperties, 400);
+            _containerResponse = await cosmosDb.Database.CreateContainerIfNotExistsAsync(containerProperties, _appSettings.CosmosDbRUs);
         }
 
         /// <summary>

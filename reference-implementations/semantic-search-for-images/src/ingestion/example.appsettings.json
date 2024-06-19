@@ -8,6 +8,7 @@
         "CosmosDbImageVectorPath": "/imageVector",
         "CosmosDbImageMetadataContainerName": "imageCsv",
         "CosmosDbPartitionKey": "/objectId",
+        "CosmosDbRUs": "1000",
         "AiServicesUri": "https://[AI Services Name].cognitiveservices.azure.com",
         "AiServicesApiVersion": "2024-02-01",
         "AiServicesModelVersion": "2023-04-15"
