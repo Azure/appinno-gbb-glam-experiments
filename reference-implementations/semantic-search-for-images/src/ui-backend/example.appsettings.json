@@ -1,0 +1,18 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "AppSettings": {
+        "CosmosDbUri": "https://[Cosmos Db Name].documents.azure.com:443",
+        "CosmosDbName": "imagesDb",
+        "CosmosDbImageMetadataContainerName": "imageCsv",
+        "CosmosDbNumItemsToReturn": 5,
+        "AiServicesUri": "https://[AI Services Name].cognitiveservices.azure.com",
+        "AiServicesApiVersion": "2024-02-01",
+        "AiServicesModelVersion": "2023-04-15"
+    }
+}
