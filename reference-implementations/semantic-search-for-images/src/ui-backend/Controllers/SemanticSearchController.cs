@@ -92,7 +92,7 @@ namespace MyApp.Namespace
         /// </summary>
         /// <param name="text">The text to search for.</param>
         /// <returns>The search results.</returns>
-        /// [HttpPost("text")]
+        [HttpPost("text")]
         public async Task<IActionResult> SearchByText(string text)
         {
             var embeddings = await _imageService.GenerateTextEmbeddings(text);
