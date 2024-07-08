@@ -3,6 +3,12 @@ Simple React Image Search
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Get Started
+
+* Create `.env` file in the `ui-frontend` root using `.env-sample` as a guide.
+
+* Run `npm install`
+
 ## Available Scripts
 
 In the project directory, you can run:
