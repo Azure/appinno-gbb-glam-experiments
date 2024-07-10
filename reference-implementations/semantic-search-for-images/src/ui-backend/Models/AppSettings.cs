@@ -2,14 +2,29 @@ namespace ui_backend.Models
 {
     public class AppSettings
     {
-        public required string CosmosDbUri { get; set; }
-        public required string CosmosDbName { get; set; }
-        public required string CosmosDbImageMetadataContainerName { get; set; }
-        public required int CosmosDbNumItemsToReturn { get; set; }
-        public required string AiServicesUri { get; set; }
-        public required string AiServicesKey { get; set; }
-        public required string AiServicesApiVersion { get; set; }
-        public required string AiServicesModelVersion { get; set; }
+        public required string DatabaseTargeted{ get; set;}
+        public required CosmosDb CosmosDb { get; set; }
+        public required AiSearch AiSearch { get; set; }
+        public required AiServices AiServices { get; set; }
     }
 
+    public class CosmosDb {
+        public required string Uri { get; set; }
+        public required string Database { get; set; }
+        public required string ImageMetadataContainer { get; set; }
+        public required int NumItemsToReturn { get; set; }
+    }
+
+    public class AiSearch {
+        public required string Uri { get; set; }
+        public required string Index { get; set; }
+        public required string VectorField { get; set; }
+        public required int NumItemsToReturn { get; set; }
+    }
+
+    public class AiServices {
+        public required string Uri { get; set; }
+        public required string ApiVersion { get; set; }
+        public required string ModelVersion { get; set; }
+    }
 }

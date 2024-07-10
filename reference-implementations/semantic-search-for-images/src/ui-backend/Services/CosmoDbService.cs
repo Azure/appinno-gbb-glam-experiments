@@ -19,8 +19,8 @@ namespace ui_backend.Services
         public CosmoDbService(AppSettings appsSettings)
         {
             _appSettings = appsSettings;
-            var cosmosClient = new CosmosClient(_appSettings.CosmosDbUri, new DefaultAzureCredential());
-            _cosmosContainer = cosmosClient.GetContainer(_appSettings.CosmosDbName, _appSettings.CosmosDbImageMetadataContainerName);
+            var cosmosClient = new CosmosClient(_appSettings.CosmosDb.Uri, new DefaultAzureCredential());
+            _cosmosContainer = cosmosClient.GetContainer(_appSettings.CosmosDb.Database, _appSettings.CosmosDb.ImageMetadataContainer);
         }
 
         /// <summary>
@@ -35,7 +35,7 @@ namespace ui_backend.Services
                                               ORDER BY VectorDistance(c.imageVector, @embedding)
                                               OFFSET 0 LIMIT @limit")
                             .WithParameter("@embedding", embeddings)
-                            .WithParameter("@limit", _appSettings.CosmosDbNumItemsToReturn);
+                            .WithParameter("@limit", _appSettings.CosmosDb.NumItemsToReturn);
             
             using FeedIterator<ImageMetadata> resultSet = _cosmosContainer.GetItemQueryIterator<ImageMetadata>(query);
             

@@ -18,11 +18,20 @@ var appSettings = builder.Configuration.GetSection("AppSettings").Get<AppSetting
 builder.Services.AddSingleton(appSettings!);
 builder.Services.AddSingleton<TokenCredential>(credential);
 builder.Services.AddTransient<IImageService, ImageService>();
-builder.Services.AddSingleton<IDatabaseService, CosmoDbService>();
+
+if(appSettings!.DatabaseTargeted == Constants.DATABASE_TARGETED_COSMOSDB)
+{
+    builder.Services.AddSingleton<IDatabaseService, CosmoDbService>();
+}
+else if(appSettings!.DatabaseTargeted == Constants.DATABASE_TARGETED_AI_SEARCH)
+{
+    builder.Services.AddSingleton<IDatabaseService, AiSearchService>();
+}
+
 builder.Services.AddHttpClient();
 builder.Services.AddHttpClient(Constants.NAMED_HTTP_CLIENT_AI_SERVICES, c =>
 {
-    c.BaseAddress = new Uri(appSettings!.AiServicesUri);   
+    c.BaseAddress = new Uri(appSettings!.AiServices.Uri);   
 });
 builder.Services.AddResiliencePipeline(Constants.NAMED_RESILIENCE_PIPELINE, builder =>
 {
