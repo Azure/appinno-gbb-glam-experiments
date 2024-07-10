@@ -27,8 +27,8 @@ namespace ingestion.Services
             _logger = loggerFactory.CreateLogger<BlobService>();
             _blobServiceClient = blobServiceClient;
 
-            _imageCSVContainerClient = _blobServiceClient.GetBlobContainerClient(appSettings.StorageAccountImageCsvContainerName);
-            _processedContainerClient = _blobServiceClient.GetBlobContainerClient(appSettings.StorageAccountProcessedContainerName);
+            _imageCSVContainerClient = _blobServiceClient.GetBlobContainerClient(appSettings.StorageAccount.ImageCsvContainer);
+            _processedContainerClient = _blobServiceClient.GetBlobContainerClient(appSettings.StorageAccount.ProcessedContainer);
         }
 
         /// <summary>

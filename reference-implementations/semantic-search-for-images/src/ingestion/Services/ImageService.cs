@@ -102,7 +102,7 @@ namespace ingestion.Services
                 _aiServicesHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResult.Token);
                 
                 using HttpResponseMessage response = await _aiServicesHttpClient.PostAsync(
-                    $"{_appSettings.AiServicesUri}/computervision/retrieval:vectorizeImage?api-version={_appSettings.AiServicesApiVersion}&model-version={_appSettings.AiServicesModelVersion}",
+                    $"{_appSettings.AiServices.Uri}/computervision/retrieval:vectorizeImage?api-version={_appSettings.AiServices.ApiVersion}&model-version={_appSettings.AiServices.ModelVersion}",
                     requestContent);
 
                 response.EnsureSuccessStatusCode();

@@ -33,20 +33,20 @@ namespace ingestion.Services
         public async Task InitializeAsync()
         {
             // Connect to a cosmos db container using DefaultAzureCredential
-            var cosmosClient = new CosmosClient(_appSettings.CosmosDbUri, new DefaultAzureCredential());
-            var cosmosDb = await cosmosClient.CreateDatabaseIfNotExistsAsync(_appSettings.CosmosDbName);
+            var cosmosClient = new CosmosClient(_appSettings.CosmosDb.Uri, new DefaultAzureCredential());
+            var cosmosDb = await cosmosClient.CreateDatabaseIfNotExistsAsync(_appSettings.CosmosDb.Database);
             List<Embedding> embeddings = new List<Embedding>()
             {
                 new Embedding()
                 {
-                    Path = _appSettings.CosmosDbImageVectorPath,
+                    Path = _appSettings.CosmosDb.ImageVectorPath,
                     DataType = VectorDataType.Float32,
                     DistanceFunction = DistanceFunction.Cosine,
                     Dimensions = 1024
                 }
             };
             Collection<Embedding> collection = new Collection<Embedding>(embeddings);
-            ContainerProperties containerProperties = new ContainerProperties(id: _appSettings.CosmosDbImageMetadataContainerName, partitionKeyPath: _appSettings.CosmosDbPartitionkey)
+            ContainerProperties containerProperties = new ContainerProperties(id: _appSettings.CosmosDb.ImageMetadataContainer, partitionKeyPath: _appSettings.CosmosDb.PartitionKey)
             {   
                 VectorEmbeddingPolicy = new(collection),
                 IndexingPolicy = new IndexingPolicy()
@@ -55,14 +55,14 @@ namespace ingestion.Services
                     {
                         new VectorIndexPath()
                         {
-                            Path = _appSettings.CosmosDbImageVectorPath,
+                            Path = _appSettings.CosmosDb.ImageVectorPath,
                             Type = VectorIndexType.QuantizedFlat,
                         }
                     }
                 },
             };
             
-            _containerResponse = await cosmosDb.Database.CreateContainerIfNotExistsAsync(containerProperties, _appSettings.CosmosDbRUs);
+            _containerResponse = await cosmosDb.Database.CreateContainerIfNotExistsAsync(containerProperties, _appSettings.CosmosDb.RUs);
         }
 
         /// <summary>

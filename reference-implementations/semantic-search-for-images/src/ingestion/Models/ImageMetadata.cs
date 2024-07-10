@@ -6,13 +6,13 @@ namespace ingestion.Models
         string artist,
         string title,
         string creationDate,
-        IDictionary<string, string> metadata
-    ) {
-        public string id { 
-            get {
-                return objectId;
+        IDictionary<string, string> metadata) 
+        {
+            public string id { 
+                get {
+                    return objectId;
+                }
             }
+            public float[]? imageVector { get; set; }
         }
-        public float[]? imageVector { get; set; }
-    }
 }
