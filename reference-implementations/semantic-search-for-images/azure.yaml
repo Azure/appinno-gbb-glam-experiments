@@ -1,0 +1,46 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: semantic-search-for-images
+metadata:
+    template: azd-init@1.9.4
+workflows:
+    up:
+        - azd: provision
+        - azd: package --all
+        - azd: deploy ui-backend
+        - azd: deploy ui-frontend
+hooks:
+    postup:
+        posix:
+            shell: sh
+            run: ./infra/hooks/postup.sh
+            interactive: true
+            continueOnError: false
+    prepackage:
+        posix:
+            shell: sh
+            run: ./infra/hooks/prepackage-ui-frontend.sh
+            interactive: true
+            continueOnError: false
+    postpackage:
+        posix:
+            shell: sh
+            run: 'rm ./src/ui-frontend/.env.local'
+services:
+    ingestion:
+        project: src/ingestion
+        host: containerapp
+        language: dotnet
+        docker:
+            path: Dockerfile
+    ui-backend:
+        project: src/ui-backend
+        host: containerapp
+        language: dotnet
+        docker:
+            path: Dockerfile
+    ui-frontend:
+        project: src/ui-frontend
+        host: containerapp
+        language: js
+        dist: build
