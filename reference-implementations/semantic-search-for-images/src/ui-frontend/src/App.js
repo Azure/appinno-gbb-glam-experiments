@@ -39,7 +39,7 @@ const App = () => {
       const { data } = await axios.post(process.env.REACT_APP_AZURE_TEXT_API_URL, {
         text: searchValue
       })
-      setImages(data.similarImages);
+      setImages(data);
     } catch (error) {
       console.log(error);
     }
@@ -63,7 +63,7 @@ const App = () => {
         headers: {
             "Content-type": "multipart/form-data",
         }})
-      setImages(data.similarImages);
+      setImages(data);
     } catch (error) {
       console.log(error);
     }
@@ -93,11 +93,11 @@ const App = () => {
 
       <div className='search-section'>
         <Form onSubmit={handleTextSearch}>
-          <Form.Label className='fw-bold'>Search by keywords</Form.Label>
+          <Form.Label className='fw-bold'>Search by text</Form.Label>
             <InputGroup className='mb-3'>
               <Form.Control
                 type='search'
-                placeholder='Keyword search'
+                placeholder='Text search (e.g., a mood, favorite color, keywords, or phrases)'
                 className='search-input'
                 ref={searchInput}
               />
@@ -109,16 +109,20 @@ const App = () => {
       </div>
 
       <div className='images'>
-      {images.map((image) => {
+      {images.map((result) => {
         return (
-          <div key={image.objectId}>
+          <div key={result.objectId}>
             <img
-              key={image.objectId}
-              src={image.imageUrl}
-              alt={image.title}
+              key={result.objectId}
+              src={result.imageUrl}
+              alt={result.title}
               className='image'
             />
-            <div className='imageText'>{image.title}</div>
+            <div className='imageText'>
+              <div className='header' dangerouslySetInnerHTML={{ __html: result.title}}></div>
+              <div className='detail'>{result.artist === '' ? 'Artist: Unknown' : 'Artist: ' + result.artist}</div>
+              <div className='detail'>Score: {result.similarityScore}</div>
+            </div>
           </div>
         );
       })}
