@@ -31,7 +31,7 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         var appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
-        var credential = new ChainedTokenCredential(new AzureCliCredential(), new ManagedIdentityCredential());
+        var credential = new ChainedTokenCredential(new AzureCliCredential(), new ManagedIdentityCredential(clientId: Configuration["AZURE_CLIENT_ID"]));
 
         services.AddLogging(builder => builder.AddConsole());
         services.AddSingleton(appSettings!);
