@@ -19,7 +19,7 @@ done <<EOF
 $(azd env get-values) 
 EOF
 
-# Login, tag, and push container image to ACR
+# Write required env vars to local .env.local
 echo "  - Write a temporary ./src/ui-frontend/.env.local file"
 echo "REACT_APP_AZURE_TEXT_API_URL=\"${SERVICE_UI_BACKEND_ENDPOINT}/api/SemanticSearch/text\"" > ./src/ui-frontend/.env.local
 echo "REACT_APP_AZURE_IMAGE_API_URL=\"${SERVICE_UI_BACKEND_ENDPOINT}/api/SemanticSearch/imageStream\"" >> ./src/ui-frontend/.env.local

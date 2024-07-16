@@ -46,5 +46,12 @@ az containerapp job update --output none --only-show-errors \
     --image "$AZURE_IMAGE_NAME" \
     > /dev/null
 
+# Run once (to initialize database)
+echo "  - Run once for database initialization"
+az containerapp job start --output none --only-show-errors \
+    --resource-group "$AZURE_RESOURCE_GROUP" \
+    --name "$SERVICE_INGESTION_JOB_NAME" \
+    > /dev/null
+
 # Success!
-echo "  \033[0;32m(✓) Done:\033[0m Deploying service ingestion"
+echo "  \033[0;32m(✓) Done:\033[0m Deploying ingestion service"

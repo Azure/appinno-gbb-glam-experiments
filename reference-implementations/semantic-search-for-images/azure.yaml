@@ -16,16 +16,29 @@ hooks:
             run: ./infra/hooks/postup.sh
             interactive: true
             continueOnError: false
+        windows:
+            shell: pwsh
+            run: ./infra/hooks/postup.ps1
+            interactive: true
+            continueOnError: false
     prepackage:
         posix:
             shell: sh
             run: ./infra/hooks/prepackage-ui-frontend.sh
             interactive: true
             continueOnError: false
+        windows:
+            shell: pwsh
+            run: ./infra/hooks/prepackage-ui-frontend.ps1
+            interactive: true
+            continueOnError: false
     postpackage:
         posix:
             shell: sh
             run: 'rm ./src/ui-frontend/.env.local'
+        windows:
+            shell: pwsh
+            run: 'Remove-Item .\src\ui-frontend\.env.local -Force'
 services:
     ingestion:
         project: src/ingestion
