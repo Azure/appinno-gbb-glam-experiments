@@ -12,7 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var credential = new ChainedTokenCredential(new AzureCliCredential(), new ManagedIdentityCredential());
+var credential = new ChainedTokenCredential(new AzureCliCredential(), new ManagedIdentityCredential(clientId: Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")));
 var appSettings = builder.Configuration.GetSection("AppSettings").Get<AppSettings>();
 
 builder.Services.AddSingleton(appSettings!);
@@ -45,15 +45,23 @@ builder.Services.AddResiliencePipeline(Constants.NAMED_RESILIENCE_PIPELINE, buil
         .AddTimeout(TimeSpan.FromSeconds(10));
 });
 
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
 
-app.UseHttpsRedirection();
+    // Note: when running in a non-development environment, we expect the host resource will manage 
+    // (e.g., Azure Container Apps: https://learn.microsoft.com/en-us/azure/container-apps/cors)
+    app.UseCors(policy => policy
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .SetIsOriginAllowed(origin => true) // allow any origin
+        .AllowCredentials());
+}
 
 app.UseAuthorization();
 

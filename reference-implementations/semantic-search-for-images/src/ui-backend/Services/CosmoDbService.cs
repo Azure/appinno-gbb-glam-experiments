@@ -49,5 +49,18 @@ namespace ui_backend.Services
 
             return results;
         }
+
+        public async Task<bool> IsReady()
+        {
+            try 
+            {
+                await _cosmosContainer.ReadContainerAsync().ConfigureAwait(false);
+            }
+            catch (HttpRequestException)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

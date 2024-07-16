@@ -1,6 +1,15 @@
-@ui_backend_HostAddress = http://localhost:5183
+#@ui_backend_HostAddress = http://localhost:5183
+@ui_backend_HostAddress = https://ca-ui-backend-ytwup3ibfwb4o.delightfulhill-c9efa5af.swedencentral.azurecontainerapps.io
 
-GET {{ui_backend_HostAddress}}/weatherforecast/
-Accept: application/json
+### Search by text
 
-###
+POST {{ui_backend_HostAddress}}/api/SemanticSearch/text
+Content-Type: application/json
+
+{
+    "text": "happiness"
+}
+
+### Health probe
+GET {{ui_backend_HostAddress}}/health/liveness
+

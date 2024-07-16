@@ -50,5 +50,18 @@ namespace ui_backend.Services
 
             return results;
         }
+
+        public async Task<bool> IsReady()
+        {
+            try
+            {
+                await _searchClient.GetDocumentCountAsync().ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return true;
+        }
     }
 }

@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using ui_backend.Models;
 using ui_backend.Services;
 
-namespace MyApp.Namespace
+namespace ui_backend.Controllers
 {
     /// <summary>
     /// Controller for performing semantic search operations.
@@ -30,12 +31,12 @@ namespace MyApp.Namespace
         /// <summary>
         /// Searches for similar images based on the provided image URL.
         /// </summary>
-        /// <param name="url">The URL of the image.</param>
+        /// <param name="requestBody">The body of the request containing the property "url" set to the URL of the image.</param>
         /// <returns>The search results.</returns>
         [HttpPost("imageUrl")]
-        public async Task<ActionResult> SearchByImage(string url)
+        public async Task<ActionResult> SearchByImage([FromBody]ByImageUrlRequest requestBody)
         {
-            var embeddings = await _imageService.GenerateImageEmbeddings(url);
+            var embeddings = await _imageService.GenerateImageEmbeddings(requestBody.Url);
             var results = await _databaseService.Search(embeddings);
 
             return Ok(results);
@@ -44,39 +45,38 @@ namespace MyApp.Namespace
         /// <summary>
         /// Searches for similar images based on the provided image stream.
         /// </summary>
-        /// <param name="req">The HTTP request containing the image stream.</param>
         /// <returns>The search results.</returns>
         [HttpPost("imageStream")]
-        public async Task<IActionResult> SearchByImage(HttpRequest req)
+        public async Task<IActionResult> SearchByImage()
         {
             _logger.LogInformation("Triggered SearchByImageStream");
 
-            if (req.ContentType == null)
+            if (Request.ContentType == null)
                 return new BadRequestObjectResult("Request Content-Type must be set. If streaming the image as the body, use 'application/octet-stream'. If providing the image as form data, use 'multipart/form-data'");
-            if (req.ContentLength == 0)
+            if (Request.ContentLength == 0)
                 return new BadRequestObjectResult("Request has no content.");
 
             float[] queryEmbeddings;
 
-            if (req.ContentType.Contains("application/octet-stream", StringComparison.InvariantCultureIgnoreCase)
-                || req.ContentType.Contains("image/png", StringComparison.InvariantCultureIgnoreCase)
-                || req.ContentType.Contains("image/jpeg", StringComparison.InvariantCultureIgnoreCase)
-                || req.ContentType.Contains("image/gif", StringComparison.InvariantCultureIgnoreCase))
+            if (Request.ContentType.Contains("application/octet-stream", StringComparison.InvariantCultureIgnoreCase)
+                || Request.ContentType.Contains("image/png", StringComparison.InvariantCultureIgnoreCase)
+                || Request.ContentType.Contains("image/jpeg", StringComparison.InvariantCultureIgnoreCase)
+                || Request.ContentType.Contains("image/gif", StringComparison.InvariantCultureIgnoreCase))
             {
-                _logger.LogInformation($"Content-Type: {req.ContentType}. Passing request body directly to generate embeddings.");
+                _logger.LogInformation($"Content-Type: {Request.ContentType}. Passing request body directly to generate embeddings.");
                 // Assume the body is an image stream and directly pass along...
-                queryEmbeddings = await _imageService.GenerateImageEmbeddings(req.Body);
+                queryEmbeddings = await _imageService.GenerateImageEmbeddings(Request.Body);
             }
-            else if (req.ContentType.Contains("multipart/form-data", StringComparison.InvariantCultureIgnoreCase))
+            else if (Request.ContentType.Contains("multipart/form-data", StringComparison.InvariantCultureIgnoreCase))
             {
-                if (req.Form.Files.Count == 0)
+                if (Request.Form.Files.Count == 0)
                     return new BadRequestObjectResult("Request form data does not include a file.");
-                if (req.Form.Files.Count > 1)
+                if (Request.Form.Files.Count > 1)
                     return new BadRequestObjectResult("Request form data includes more than one file; only one may be accepted.");
 
                 _logger.LogInformation("Content-Type: multipart/form-data. Passing request form file read stream to generate embeddings.");
 
-                var file = req.Form.Files[0];
+                var file = Request.Form.Files[0];
                 queryEmbeddings = await _imageService.GenerateImageEmbeddings(file.OpenReadStream());
             }
             else
@@ -90,12 +90,12 @@ namespace MyApp.Namespace
         /// <summary>
         /// Searches for similar images based on the provided text.
         /// </summary>
-        /// <param name="text">The text to search for.</param>
+        /// <param name="requestBody">The body of the request containing the property "text" set to the text to search for.</param>
         /// <returns>The search results.</returns>
         [HttpPost("text")]
-        public async Task<IActionResult> SearchByText(string text)
+        public async Task<IActionResult> SearchByText([FromBody]ByTextRequest requestBody)
         {
-            var embeddings = await _imageService.GenerateTextEmbeddings(text);
+            var embeddings = await _imageService.GenerateTextEmbeddings(requestBody.Text);
             return Ok(await _databaseService.Search(embeddings));
         }
     }
