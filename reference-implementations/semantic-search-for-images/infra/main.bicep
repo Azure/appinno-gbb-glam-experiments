@@ -9,6 +9,10 @@ param environmentName string
 @description('Primary location for all resources')
 param location string
 
+@description('Vector database to be used: either CosmosDb or AiSearch')
+@allowed(['CosmosDb', 'AiSearch'])
+param targetVectorDatabase string
+
 param ingestionExists bool
 @secure()
 param ingestionDefinition object
@@ -85,13 +89,21 @@ module keyVault './shared/keyvault.bicep' = {
   scope: rg
 }
 
-module cosmos './shared/cosmos-account.bicep' = {
+module cosmos './shared/cosmos-account.bicep' = if (targetVectorDatabase == 'CosmosDb') {
   name: 'cosmos'
   params: {
     keyVaultName: keyVault.outputs.name
     kind: 'GlobalDocumentDB'
     name: '${abbrs.documentDBDatabaseAccounts}${resourceToken}'
     previewCapabilities: [ { name: 'EnableNoSQLVectorSearch' } ]
+  }
+  scope: rg
+}
+
+module search './shared/search-services.bicep' = if (targetVectorDatabase == 'AiSearch') {
+  name: 'search'
+  params: {
+    name: '${abbrs.searchSearchServices}${resourceToken}'
   }
   scope: rg
 }
@@ -141,20 +153,66 @@ module ingestion './app/ingestion.bicep' = {
     containerRegistryName: registry.outputs.name
     exists: ingestionExists
     appDefinition: ingestionDefinition
-    additionalAppSettings: [
+    additionalAppSettings: union([
       {
         name: 'AppSettings__StorageAccount__Uri'
         value: storage.outputs.primaryEndpoints.blob
       }
       {
+        name: 'AppSettings__AiServices__Uri'
+        value: aiServices.outputs.endpoint
+      }
+      {
+        name: 'AppSettings__DatabaseTargeted'
+        value: targetVectorDatabase
+      }
+    ], (targetVectorDatabase == 'CosmosDb') ? [
+      {
         name: 'AppSettings__CosmosDb__Uri'
         value: cosmos.outputs.endpoint
       }
       {
-        name: 'AppSettings__AiServices__Uri'
-        value: aiServices.outputs.endpoint
+        name: 'AppSettings__CosmosDb__Database'
+        value: 'imagesDb'
       }
-    ]
+      {
+        name: 'AppSettings__CosmosDb__ImageVectorPath'
+        value: '/imageVector'
+      }
+      {
+        name: 'AppSettings__CosmosDb__ImageMetadataContainer'
+        value: 'imagesCsv'
+      }
+      {
+        name: 'AppSettings__CosmosDb__PartitionKey'
+        value: '/objectId'
+      }
+      {
+        name: 'AppSettings__CosmosDb__RUs'
+        value: '1000'
+      }
+    ] : [
+      {
+        name: 'AppSettings__AiSearch__Uri'
+        value: search.outputs.endpoint
+      }
+      {
+        name: 'AppSettings__AiSearch__Index'
+        value: 'images-v'
+      }
+      {
+        name: 'AppSettings__AiSearch__VectorSearchProfile'
+        value: 'my-vector-profile'
+      }
+      {
+        name: 'AppSettings__AiSearch__VectorSearchHnswConfig'
+        value: 'my-hsnw-vector-config'
+      }
+      {
+        name: 'AppSettings__AiSearch__VectorSearchDimensions'
+        value: '1024'
+      }
+    ])
     triggerStorageAccountBlobContainerName: ingestionTriggerBlobContainerName
     triggerStorageAccountName: storage.outputs.name
   }
@@ -176,16 +234,54 @@ module uiBackend './app/ui-backend.bicep' = {
     allowedOrigins: [
       'https://${abbrs.appContainerApps}ui-frontend-${resourceToken}.${appsEnv.outputs.domain}'
     ]
-    additionalAppSettings: [
+    additionalAppSettings: union([
+      {
+        name: 'AppSettings__AiServices__Uri'
+        value: aiServices.outputs.endpoint
+      }
+    ], (targetVectorDatabase == 'CosmosDb') ? [
+      {
+        name: 'AppSettings__DatabaseTargeted'
+        value: targetVectorDatabase
+      }
       {
         name: 'AppSettings__CosmosDb__Uri'
         value: cosmos.outputs.endpoint
       }
       {
-        name: 'AppSettings__AiServices__Uri'
-        value: aiServices.outputs.endpoint
+        name: 'AppSettings__CosmosDb__Database'
+        value: 'imagesDb'
       }
-    ]
+      {
+        name: 'AppSettings__CosmosDb__ImageMetadataContainer'
+        value: 'imagesCsv'
+      }
+      {
+        name: 'AppSettings__CosmosDb__NumItemsToReturn'
+        value: '5'
+      }
+    ] : [
+      {
+        name: 'AppSettings__DatabaseTargeted'
+        value: targetVectorDatabase
+      }
+      {
+        name: 'AppSettings__AiSearch__Uri'
+        value: search.outputs.endpoint
+      }
+      {
+        name: 'AppSettings__AiSearch__Index'
+        value: 'images-v'
+      }
+      {
+        name: 'AppSettings__AiSearch__VectorField'
+        value: 'imageVector'
+      }
+      {
+        name: 'AppSettings__AiSearch__NumItemsToReturn'
+        value: '5'
+      }
+    ])
   }
   scope: rg
 }
@@ -212,12 +308,13 @@ module uiFrontend './app/ui-frontend.bicep' = {
 module security './app/security.bicep' = {
   name: 'rbac-security'
   params: {
-    backendAppPrincipalId: uiBackend.outputs.principalId
-    cognitiveServicesAccountName: aiServices.outputs.name
-    cosmosAccountName: cosmos.outputs.name
-    frontendAppPrincipalId: uiFrontend.outputs.principalId
     ingestionAppPrincipalId: ingestion.outputs.principalId
+    backendAppPrincipalId: uiBackend.outputs.principalId
+    frontendAppPrincipalId: uiFrontend.outputs.principalId
+    cognitiveServicesAccountName: aiServices.outputs.name
     storageAccountName: storage.outputs.name
+    targetVectorDatabase: targetVectorDatabase
+    vectorDbResourceName: (targetVectorDatabase == 'CosmosDb') ? cosmos.outputs.name : search.outputs.name
   }
   scope: rg
 }

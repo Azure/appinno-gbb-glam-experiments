@@ -23,30 +23,6 @@
               "value": "processed"
             },
             {
-              "name": "AppSettings__DatabaseTargeted",
-              "value": "CosmosDb"
-            },
-            {
-              "name": "AppSettings__CosmosDb__Database",
-              "value": "imagesDb"
-            },
-            {
-              "name": "AppSettings__CosmosDb__ImageVectorPath",
-              "value": "/imageVector"
-            },
-            {
-              "name": "AppSettings__CosmosDb__ImageMetadataContainer",
-              "value": "imagesCsv"
-            },
-            {
-              "name": "AppSettings__CosmosDb__PartitionKey",
-              "value": "/objectId"
-            },
-            {
-              "name": "AppSettings__CosmosDb__RUs",
-              "value": "1000"
-            },
-            {
               "name": "AppSettings__AiServices__ApiVersion",
               "value": "2024-02-01"
             },
@@ -76,22 +52,6 @@
       "uiBackendDefinition": {
         "value": {
           "settings": [
-            {
-              "name": "AppSettings__DatabaseTargeted",
-              "value": "CosmosDb"
-            },
-            {
-              "name": "AppSettings__CosmosDb__Database",
-              "value": "imagesDb"
-            },
-            {
-              "name": "AppSettings__CosmosDb__ImageMetadataContainer",
-              "value": "imagesCsv"
-            },
-            {
-              "name": "AppSettings__CosmosDb__NumItemsToReturn",
-              "value": "5"
-            },
             {
               "name": "AppSettings__AiServices__ApiVersion",
               "value": "2024-02-01"

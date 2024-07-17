@@ -4,7 +4,11 @@ param frontendAppPrincipalId string
 
 param cognitiveServicesAccountName string
 param storageAccountName string
-param cosmosAccountName string
+
+param targetVectorDatabase string
+param vectorDbResourceName string
+var cosmosAccountName = (targetVectorDatabase == 'CosmosDb') ? vectorDbResourceName : ''
+var searchServiceName = (targetVectorDatabase == 'AiSearch') ? vectorDbResourceName : ''
 
 // -----------------------------------------------
 // Built-in Roles
@@ -13,11 +17,19 @@ param cosmosAccountName string
 // Azure RBAC
 var cognitiveServicesUserRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'a97b65f3-24c7-4388-baec-2e87135dc908')
 var storageBlobDataOwnerRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b')
+
+// If targetVectorDatabase == 'AiSearch'...
+var searchServiceContributorRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '7ca78c08-252a-4471-8644-bb5ff32d4ba0')
+var searchServiceIndexDataContributorRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8ebe5a00-799e-43f5-93ac-243d3dce84a7')
+var searchServiceIndexDataReaderRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '1407120a-92aa-4202-b7e9-c0e197c71c8f')
+
+// If targetVectorDatabase == 'CosmosDb'...
 var documentDbAccountContributorRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5bd9cd88-fe45-4216-938b-f97437e15450')
+
 // Azure Cosmos DB RBAC
-var cosmosDbDataReaderRole = resourceId('Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions', cosmosAccountName, '00000000-0000-0000-0000-000000000001')
+var cosmosDbDataReaderRole = (targetVectorDatabase == 'CosmosDb') ? resourceId('Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions', cosmosAccountName, '00000000-0000-0000-0000-000000000001') : ''
 var customIngestionRoleDefinitionName = 'Custom Super User Role for Ingestion'
-var customIngestionRoleDefinitionId = guid(subscription().id, resourceGroup().id, cosmosAccountName, customIngestionRoleDefinitionName)
+var customIngestionRoleDefinitionId = (targetVectorDatabase == 'CosmosDb') ? guid(subscription().id, resourceGroup().id, cosmosAccountName, customIngestionRoleDefinitionName) : ''
 
 // -----------------------------------------------
 // Target resources
@@ -31,8 +43,12 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' existing 
   name: storageAccountName
 }
 
-resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' existing = {
+resource cosmosAccount 'Microsoft.DocumentDB/databaseAccounts@2024-05-15' existing = if (targetVectorDatabase == 'CosmosDb') {
   name: cosmosAccountName
+}
+
+resource searchService 'Microsoft.Search/searchServices@2024-06-01-preview' existing = if (targetVectorDatabase == 'AiSearch') {
+  name: searchServiceName
 }
 
 // -----------------------------------------------
@@ -59,7 +75,9 @@ resource ingestionStorageBlobDataOwner 'Microsoft.Authorization/roleAssignments@
   scope: storageAccount
 }
 
-resource ingestionDocumentDbAccountContributor 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+// If targetVectorDatabase == 'CosmosDb'...
+
+resource ingestionDocumentDbAccountContributor 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (targetVectorDatabase == 'CosmosDb') {
   name: guid(subscription().id, resourceGroup().id, ingestionAppPrincipalId, documentDbAccountContributorRole)
   properties: {
     principalId: ingestionAppPrincipalId
@@ -69,7 +87,7 @@ resource ingestionDocumentDbAccountContributor 'Microsoft.Authorization/roleAssi
   scope: cosmosAccount
 }
 
-resource ingestionCustomSqlRoleDefinition 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2024-05-15' = {
+resource ingestionCustomSqlRoleDefinition 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2024-05-15' = if (targetVectorDatabase == 'CosmosDb') {
   parent: cosmosAccount
   name: customIngestionRoleDefinitionId
   properties: {
@@ -91,7 +109,7 @@ resource ingestionCustomSqlRoleDefinition 'Microsoft.DocumentDB/databaseAccounts
   }
 }
 
-resource ingestionSqlRoleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2024-05-15' = {
+resource ingestionSqlRoleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2024-05-15' = if (targetVectorDatabase == 'CosmosDb') {
   parent: cosmosAccount
   name: guid(subscription().id, resourceGroup().id, cosmosAccount.id, ingestionAppPrincipalId, ingestionCustomSqlRoleDefinition.id)
   properties: {
@@ -99,6 +117,28 @@ resource ingestionSqlRoleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRo
     roleDefinitionId: ingestionCustomSqlRoleDefinition.id
     scope: cosmosAccount.id
   }
+}
+
+// If targetVectorDatabase == 'AiSearch'...
+
+resource ingestionSearchServiceContributor 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (targetVectorDatabase == 'AiSearch') {
+  name: guid(subscription().id, resourceGroup().id, ingestionAppPrincipalId, searchServiceContributorRole)
+  properties: {
+    principalId: ingestionAppPrincipalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: searchServiceContributorRole
+  }
+  scope: searchService
+}
+
+resource ingestionSearchIndexDataContributor 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (targetVectorDatabase == 'AiSearch') {
+  name: guid(subscription().id, resourceGroup().id, ingestionAppPrincipalId, searchServiceIndexDataContributorRole)
+  properties: {
+    principalId: ingestionAppPrincipalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: searchServiceIndexDataContributorRole
+  }
+  scope: searchService
 }
 
 // -----------------------------------------------
@@ -115,7 +155,9 @@ resource backendCognitiveServicesUser 'Microsoft.Authorization/roleAssignments@2
   scope: cognitiveServicesAccount
 }
 
-resource backendSqlRoleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2024-05-15' = {
+// If targetVectorDatabase == 'CosmosDb'...
+
+resource backendSqlRoleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2024-05-15' = if (targetVectorDatabase == 'CosmosDb') {
   parent: cosmosAccount
   name: guid(subscription().id, resourceGroup().id, cosmosAccount.id, backendAppPrincipalId, cosmosDbDataReaderRole)
   properties: {
@@ -125,9 +167,14 @@ resource backendSqlRoleAssignment 'Microsoft.DocumentDB/databaseAccounts/sqlRole
   }
 }
 
-// -----------------------------------------------
-// UI Frontend App
-//
-// TODO: MAY NOT USE... API is open, but we will lock down to internal
-// ingress only on ACA side... so frontend will be able to access, but
-// anything else outside of ACA environment would not.
+// If targetVectorDatabase == 'AiSearch'...
+
+resource backendSearchIndexDataReader 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (targetVectorDatabase == 'AiSearch') {
+  name: guid(subscription().id, resourceGroup().id, backendAppPrincipalId, searchServiceIndexDataReaderRole)
+  properties: {
+    principalId: backendAppPrincipalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: searchServiceIndexDataReaderRole
+  }
+  scope: searchService
+}

@@ -7,6 +7,7 @@ set -e
 # variables at build time.
 # -------------------------------------------------------
 
+echo ""
 echo "\033[1mPreparing ui-frontend for packaging (azd hook: prepackage-ui-frontend)\033[0m"
 echo ""
 echo "  - Loading azd .env file from current environment"
