@@ -61,6 +61,7 @@ flowchart LR
     - Enter an environment name (e.g., *semantic-search-for-images*)
     - Select the appropriate target Azure Subscription
     - Select the appropriate target location
+    - Select the target vector database (either Azure AI Search [AiSearch], or Azure Cosmos DB NoSQL API [CosmosDb])
     > Note: You can re-run `azd up` as many times as you like to both provision and deploy updates to the application. If provisioning parameters change, just re-run. If application code changes, just re-run.  
 
     > IMPORTANT: There is a known issue where at times the first run fails with an error related to not finding the ui-backend and/or ingestion services. If you hit this error, re-run `azd up`, and it should successfully provision all resources when running the second time.
