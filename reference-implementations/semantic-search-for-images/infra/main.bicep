@@ -104,6 +104,11 @@ module search './shared/search-services.bicep' = if (targetVectorDatabase == 'Ai
   name: 'search'
   params: {
     name: '${abbrs.searchSearchServices}${resourceToken}'
+    authOptions: {
+      aadOrApiKey: {
+        aadAuthFailureMode: 'http403'
+      }
+    }
   }
   scope: rg
 }
@@ -239,11 +244,11 @@ module uiBackend './app/ui-backend.bicep' = {
         name: 'AppSettings__AiServices__Uri'
         value: aiServices.outputs.endpoint
       }
-    ], (targetVectorDatabase == 'CosmosDb') ? [
       {
         name: 'AppSettings__DatabaseTargeted'
         value: targetVectorDatabase
       }
+    ], (targetVectorDatabase == 'CosmosDb') ? [
       {
         name: 'AppSettings__CosmosDb__Uri'
         value: cosmos.outputs.endpoint
@@ -261,10 +266,6 @@ module uiBackend './app/ui-backend.bicep' = {
         value: '5'
       }
     ] : [
-      {
-        name: 'AppSettings__DatabaseTargeted'
-        value: targetVectorDatabase
-      }
       {
         name: 'AppSettings__AiSearch__Uri'
         value: search.outputs.endpoint
@@ -322,7 +323,6 @@ module security './app/security.bicep' = {
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = registry.outputs.loginServer
 output AZURE_KEY_VAULT_NAME string = keyVault.outputs.name
 output AZURE_KEY_VAULT_ENDPOINT string = keyVault.outputs.endpoint
-output AZURE_COSMOSDB_ACCOUNT_NAME string = cosmos.outputs.name
 output AZURE_RESOURCE_GROUP string = rg.name
 output SERVICE_INGESTION_JOB_NAME string = ingestion.outputs.name
 output SERVICE_UI_BACKEND_ENDPOINT string = uiBackend.outputs.uri
