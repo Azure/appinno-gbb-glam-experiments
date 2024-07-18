@@ -77,23 +77,77 @@ public class Startup
             string.IsNullOrEmpty(appSettings.StorageAccount.ImageCsvContainer) ||
             string.IsNullOrEmpty(appSettings.StorageAccount.ProcessedContainer) ||
             string.IsNullOrEmpty(appSettings.DatabaseTargeted) ||
-            string.IsNullOrEmpty(appSettings.CosmosDb.Uri) ||
-            string.IsNullOrEmpty(appSettings.CosmosDb.Database) ||
-            string.IsNullOrEmpty(appSettings.CosmosDb.ImageVectorPath) ||
-            string.IsNullOrEmpty(appSettings.CosmosDb.ImageMetadataContainer) ||
-            string.IsNullOrEmpty(appSettings.CosmosDb.PartitionKey) ||
             string.IsNullOrEmpty(appSettings.AiServices.Uri) ||
             string.IsNullOrEmpty(appSettings.AiServices.ApiVersion) ||
             string.IsNullOrEmpty(appSettings.AiServices.ModelVersion))
         {
             settingsMissing = true;
         }
-        
-        if(!appSettings.DatabaseTargeted.Equals(Constants.DATABASE_TARGETED_COSMOSDB) && !appSettings.DatabaseTargeted.Equals(Constants.DATABASE_TARGETED_AI_SEARCH))
+
+        if(string.IsNullOrEmpty(appSettings.DatabaseTargeted))
+        {
+            settingsMissing = true;
+            sb.AppendLine("DatabaseTargeted not found. Allowed values are 'CosmosDb' or 'AiSearch'.");
+        }
+        else if(!appSettings.DatabaseTargeted.Equals(Constants.DATABASE_TARGETED_COSMOSDB) && !appSettings.DatabaseTargeted.Equals(Constants.DATABASE_TARGETED_AI_SEARCH))
         {
             settingsMissing = true;
             sb.AppendLine($"DatabaseTargeted value is '{appSettings.DatabaseTargeted}' which is invalid. Allowed values are 'CosmosDb' or 'AiSearch'.");
         }            
+
+        if (appSettings.DatabaseTargeted is not null && appSettings.DatabaseTargeted.Equals(Constants.DATABASE_TARGETED_COSMOSDB)) {
+            var cosmosSettingsMissing = false;
+
+            if(appSettings.CosmosDb is null) {
+                cosmosSettingsMissing = true;
+            }
+            else if (string.IsNullOrEmpty(appSettings.CosmosDb.Uri) ||
+                string.IsNullOrEmpty(appSettings.CosmosDb.Database) ||
+                string.IsNullOrEmpty(appSettings.CosmosDb.ImageVectorPath) ||
+                string.IsNullOrEmpty(appSettings.CosmosDb.ImageMetadataContainer) ||
+                string.IsNullOrEmpty(appSettings.CosmosDb.PartitionKey) ||
+                appSettings.CosmosDb.RUs <= 0) {
+
+                cosmosSettingsMissing = true;
+            }
+
+            if(cosmosSettingsMissing) {
+                settingsMissing = true;
+                sb.AppendLine("CosmosDb is the targeted database, however, some settings were not found. Please ensure that the following settings are present in appsettings.json or environment variables:");
+                sb.AppendLine("- CosmosDb.Uri");
+                sb.AppendLine("- CosmosDb.Database");
+                sb.AppendLine("- CosmosDb.ImageVectorPath");
+                sb.AppendLine("- CosmosDb.ImageMetadataContainer");
+                sb.AppendLine("- CosmosDb.PartitionKey");
+                sb.AppendLine("- CosmosDb.RUs");
+            }
+        }
+
+        if (appSettings.DatabaseTargeted is not null && appSettings.DatabaseTargeted.Equals(Constants.DATABASE_TARGETED_AI_SEARCH)) {
+            var aiSearchSettingsMissing = false;
+
+            if(appSettings.AiSearch is null) {
+                aiSearchSettingsMissing = true;
+            }
+            else if (string.IsNullOrEmpty(appSettings.AiSearch.Uri) ||
+                string.IsNullOrEmpty(appSettings.AiSearch.Index) ||
+                string.IsNullOrEmpty(appSettings.AiSearch.VectorSearchProfile) ||
+                string.IsNullOrEmpty(appSettings.AiSearch.VectorSearchHnswConfig) ||
+                appSettings.AiSearch.VectorSearchDimensions <= 0) {
+                
+                aiSearchSettingsMissing = true;
+            }
+
+            if(aiSearchSettingsMissing) {
+                settingsMissing = true;
+                sb.AppendLine("AiSearch is the targeted database, however, some settings were not found. Please ensure that the following settings are present in appsettings.json or environment variables:");
+                sb.AppendLine("- AiSearch.Uri");
+                sb.AppendLine("- AiSearch.Index");
+                sb.AppendLine("- AiSearch.VectorSearchProfile");
+                sb.AppendLine("- AiSearch.VectorSearchHnswConfig");
+                sb.AppendLine("- AiSearch.VectorSearchDimensions");
+            }
+        }
 
         if (string.IsNullOrEmpty(appSettings.StorageAccount.Uri))
             sb.AppendLine("StorageAccount.Uri not found.");
@@ -101,18 +155,6 @@ public class Startup
             sb.AppendLine("StorageAccount.ImageCsvContainer not found.");
         if (string.IsNullOrEmpty(appSettings.StorageAccount.ProcessedContainer))
             sb.AppendLine("StorageAccount.ProcessedContainer not found.");
-        if (string.IsNullOrEmpty(appSettings.DatabaseTargeted))
-            sb.AppendLine("DatabaseTargeted not found. Allowed values are 'CosmosDb' or 'AiSearch'.");
-        if (string.IsNullOrEmpty(appSettings.CosmosDb.Uri))
-            sb.AppendLine("CosmosDb.Uri not found.");
-        if (string.IsNullOrEmpty(appSettings.CosmosDb.Database))
-            sb.AppendLine("CosmosDb.Database not found.");
-        if (string.IsNullOrEmpty(appSettings.CosmosDb.ImageVectorPath))
-            sb.AppendLine("CosmosDb.ImageVectorPath not found.");
-        if (string.IsNullOrEmpty(appSettings.CosmosDb.ImageMetadataContainer))
-            sb.AppendLine("CosmosDb.ImageMetadataContainer not found.");
-        if (string.IsNullOrEmpty(appSettings.CosmosDb.PartitionKey))
-            sb.AppendLine("CosmosDb.Partitionkey not found.");
         if (string.IsNullOrEmpty(appSettings.AiServices.Uri))
             sb.AppendLine("AiServices.Uri not found.");
         if (string.IsNullOrEmpty(appSettings.AiServices.ApiVersion))
