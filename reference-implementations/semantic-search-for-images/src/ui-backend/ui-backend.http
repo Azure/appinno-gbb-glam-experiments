@@ -1,5 +1,4 @@
-#@ui_backend_HostAddress = http://localhost:5183
-@ui_backend_HostAddress = https://ca-ui-backend-ytwup3ibfwb4o.delightfulhill-c9efa5af.swedencentral.azurecontainerapps.io
+@ui_backend_HostAddress = http://localhost:5183
 
 ### Search by text
 
