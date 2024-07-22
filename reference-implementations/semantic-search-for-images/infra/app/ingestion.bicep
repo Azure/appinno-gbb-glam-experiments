@@ -76,7 +76,7 @@ resource job 'Microsoft.App/jobs@2023-05-02-preview' = {
   properties: {
     environmentId: containerAppsEnvironment.id
     configuration: {
-      replicaTimeout: 3600
+      replicaTimeout: 86400 // 24 hours (large ingestion files take time)
       replicaRetryLimit: 1
       triggerType: 'Event'
       eventTriggerConfig: {

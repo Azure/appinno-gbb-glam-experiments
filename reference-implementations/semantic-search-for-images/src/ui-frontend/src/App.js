@@ -80,6 +80,7 @@ const App = () => {
                 type="file"
                 size="lg"
                 accept="image/*"
+                capture="environment"
                 onChange={handleImageChange}
                 ref={imageInput}
               />
