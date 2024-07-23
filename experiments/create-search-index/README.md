@@ -1,8 +1,10 @@
 # Create an Azure AI Search Index including Multi-Modal Image Embeddings (Vectors)
 
+**Welcome!** Want to see this experiment as part of a full end-to-end reference implementation? This experiment led to the development of the ingestion component in the [semantic search for images reference implementation](../../reference-implementations/semantic-search-for-images/README.md). Look there for a complete solution that may be deployed to your Azure subscription.
+
 ## Goal
 
-Leverage Azure AI Vision's multi-modal image embeddings to support semantic search across image-based documents (e.g., art objects) based on the image data itself.
+Leverage Azure AI Vision's multimodal embeddings APIs to support semantic search across image-based documents (e.g., art objects) based on the image data itself.
 
 ## Approach: Locally Run Console Application with Document Upload
 
