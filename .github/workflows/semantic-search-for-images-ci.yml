@@ -2,11 +2,11 @@ name: 'CI - Semantic Search for Images'
 
 on:
   push:
-    branches: [ $default-branch ]
-    paths: [ 'reference-implementation/semantic-search-for-images/src/**' ]
+    branches: [ 'main' ]
+    paths: [ 'reference-implementations/semantic-search-for-images/src/**' ]
   pull_request:
-    branches: [ $default-branch ]
-    paths: [ 'reference-implementation/semantic-search-for-images/src/**' ]
+    branches: [ 'main' ]
+    paths: [ 'reference-implementations/semantic-search-for-images/src/**' ]
   # Enable manual execution
   workflow_dispatch:
 
@@ -18,7 +18,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./reference-implementation/semantic-search-for-images/src/ingestion
+        working-directory: ./reference-implementations/semantic-search-for-images/src/ingestion
 
     steps:
     - uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./reference-implementation/semantic-search-for-images/src/ui-backend
+        working-directory: ./reference-implementations/semantic-search-for-images/src/ui-backend
 
     steps:
     - uses: actions/checkout@v4
@@ -60,22 +60,18 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./reference-implementation/semantic-search-for-images/src/ui-frontend
-
-    strategy:
-      matrix:
-        node-version: [14.x, 16.x, 18.x]
+        working-directory: ./reference-implementations/semantic-search-for-images/src/ui-frontend
 
     steps:
     - uses: actions/checkout@v4
-    - name: Setup Node.js ${{ matrix.node-version }}
+    - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 18.x
         cache: 'npm'
     - name: Clean install for dependencies
       run: npm ci
     - name: Build
       run: npm run build --if-present
     - name: Test
-      run: npm test
+      run: npm run test -- --watchAll=false --runInBand=true --forceExit=true
