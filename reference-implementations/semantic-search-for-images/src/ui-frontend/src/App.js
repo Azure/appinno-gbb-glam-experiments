@@ -77,14 +77,15 @@ const App = () => {
             <Form.Label className='fw-bold'>Search by image</Form.Label>
             <InputGroup className='mb-3'>
               <Form.Control
-                type="file"
-                size="lg"
-                accept="image/*"
-                capture="environment"
+                data-testid='search-by-image-upload-button'
+                type='file'
+                size='lg'
+                accept='image/*'
+                capture='environment'
                 onChange={handleImageChange}
                 ref={imageInput}
               />
-              <Button type='submit' variant='primary'>
+              <Button type='submit' variant='primary' data-testid='search-by-image-search-button'>
                   Search
               </Button>
             </InputGroup>
@@ -97,12 +98,13 @@ const App = () => {
           <Form.Label className='fw-bold'>Search by text</Form.Label>
             <InputGroup className='mb-3'>
               <Form.Control
+                data-testid='search-by-text-input'
                 type='search'
                 placeholder='Text search (e.g., a mood, favorite color, keywords, or phrases)'
                 className='search-input'
                 ref={searchInput}
               />
-              <Button type='submit' variant='primary'>
+              <Button type='submit' variant='primary' data-testid='search-by-text-search-button'>
                   Search
               </Button>
             </InputGroup>
