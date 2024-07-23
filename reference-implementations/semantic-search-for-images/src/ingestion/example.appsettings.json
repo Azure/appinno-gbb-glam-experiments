@@ -1,0 +1,31 @@
+{
+    "AppSettings": {
+        "DatabaseTargeted": "[CosmosDb or AiSearch]",
+        "StorageAccount": {
+            "Uri": "https://[Storage Account Name].blob.core.windows.net",
+            "ImageCsvContainer": "images",
+            "ProcessedContainer": "processed"
+        },
+        "CosmosDb": {
+            "Uri": "https://[Cosmos Db Name].documents.azure.com:443",
+            "Database": "imagesDb",
+            "ImageVectorPath": "/imageVector",
+            "ImageMetadataContainer": "imageCsv",
+            "PartitionKey": "/objectId",
+            "RUs": "1000"
+
+        },
+        "AiSearch": {
+            "Uri": "https://[Ai Search Name].search.windows.net",
+            "Index": "images",
+            "VectorSearchProfile": "my-vector-profile",
+            "VectorSearchHnswConfig": "my-hsnw-vector-config",
+            "VectorSearchDimensions": "1024"
+        },
+        "AiServices": {
+            "Uri": "https://[AI Services Name].cognitiveservices.azure.com",
+            "ApiVersion": "2024-02-01",
+            "ModelVersion": "2023-04-15"
+        }
+    }
+}

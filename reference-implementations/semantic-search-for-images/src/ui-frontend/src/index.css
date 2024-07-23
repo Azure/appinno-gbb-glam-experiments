@@ -1,0 +1,148 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  --default-spacing: 10px;
+  --default-margin: 1rem;
+  --medium-margin: 3rem;
+  --larger-margin: 5rem;
+  --primary-color: #7676d7;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  color: var(--primary-color);
+}
+
+/* common css starts */
+
+.container {
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.title {
+  text-align: center;
+  margin-top: var(--default-margin);
+  color: #000000;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--default-margin);
+  margin-top: var(--medium-margin);
+  margin-bottom: var(--larger-margin);
+}
+
+.buttons .btn,
+.buttons .btn:active,
+.buttons .btn:focus {
+  background-color: var(--primary-color);
+  box-shadow: none;
+  outline: none;
+  border: none;
+}
+
+.error-msg {
+  color: #ff0000;
+  text-align: center;
+}
+
+.loading {
+  color: #6565d4;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 20px;
+}
+
+/* common css ends */
+
+.search-section {
+  display: flex-wrap;
+  justify-content: center;
+  
+  margin-top: var(--default-margin);
+}
+
+.search-section .search-input {
+  padding: var(--default-spacing);
+}
+
+.imagePreview {
+  width: 200px;
+  height: 200px;
+  border-radius: 10px;
+  display: flex;
+  margin-top: var(--default-spacing);
+  object-fit: contain;
+}
+
+.images {
+  margin-top: var(--medium-margin);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-gap: var(--default-spacing);
+  justify-content: center;
+  align-items: center;
+}
+
+.images .image {
+  width: 200px;
+  height: 200px;
+  border-radius: 10px;
+  justify-self: center;
+  align-self: center;
+  margin-left: 5px;
+  transition: transform 0.5s;
+  object-fit: contain;
+}
+
+.images .imageText {
+  width: 200px;
+  height: 200px;
+  justify-self: center;
+  margin-left: 5px;
+  margin-top: 5px;
+}
+
+.images .imageText .header {
+  font-weight: 500;
+}
+
+.images .imageText .detail {
+  font-size: small;
+}
+
+.images .image:hover {
+  transform: translateY(-3px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .images {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .search-section .search-input {
+    width: 100%;
+    min-width: unset;
+    margin: 0 var(--default-margin);
+  }
+
+  .images {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "AppSettings": {
+    "DatabaseTargeted": "[CosmosDb or AiSearch]",
+    "CosmosDb": {
+        "Uri": "https://[Cosmos Db Name].documents.azure.com:443",
+        "Database": "imagesDb",
+        "ImageMetadataContainer": "imageCsv",
+        "NumItemsToReturn": 5
+    },
+    "AiSearch": {
+        "Uri": "https://[Ai Search Name].search.windows.net",
+        "Index": "images",
+        "VectorField": "imageVector",
+        "NumItemsToReturn": 5
+    },
+    "AiServices": {
+        "Uri": "https://[Ai Services Name].cognitiveservices.azure.com",
+        "ApiVersion": "2024-02-01",
+        "ModelVersion": "2023-04-15"
+    }
+  }
+}

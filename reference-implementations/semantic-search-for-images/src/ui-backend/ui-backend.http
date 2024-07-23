@@ -1,0 +1,14 @@
+@ui_backend_HostAddress = http://localhost:5183
+
+### Search by text
+
+POST {{ui_backend_HostAddress}}/api/SemanticSearch/text
+Content-Type: application/json
+
+{
+    "text": "happiness"
+}
+
+### Health probe
+GET {{ui_backend_HostAddress}}/health/liveness
+

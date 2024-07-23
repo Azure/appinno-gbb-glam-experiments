@@ -1,0 +1,105 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "environmentName": {
+        "value": "${AZURE_ENV_NAME}"
+      },
+      "location": {
+        "value": "${AZURE_LOCATION}"
+      },
+      "ingestionExists": {
+        "value": "${SERVICE_INGESTION_RESOURCE_EXISTS=false}"
+      },
+      "ingestionDefinition": {
+        "value": {
+          "settings": [
+            {
+              "name": "AppSettings__StorageAccount__ImageCsvContainer",
+              "value": "images"
+            },
+            {
+              "name": "AppSettings__StorageAccount__ProcessedContainer",
+              "value": "processed"
+            },
+            {
+              "name": "AppSettings__AiServices__ApiVersion",
+              "value": "2024-02-01"
+            },
+            {
+              "name": "AppSettings__AiServices__ModelVersion",
+              "value": "2023-04-15"
+            },
+            {
+              "name": "",
+              "value": "${VAR}",
+              "_comment_name": "The name of the environment variable when running in Azure. If empty, ignored.",
+              "_comment_value": "The value to provide. This can be a fixed literal, or an expression like ${VAR} to use the value of 'VAR' from the current environment."
+            },
+            {
+              "name": "",
+              "value": "${VAR_S}",
+              "secret": true,
+              "_comment_name": "The name of the environment variable when running in Azure. If empty, ignored.",
+              "_comment_value": "The value to provide. This can be a fixed literal, or an expression like ${VAR_S} to use the value of 'VAR_S' from the current environment."
+            }
+          ]
+        }
+      },
+      "uiBackendExists": {
+        "value": "${SERVICE_UI_BACKEND_RESOURCE_EXISTS=false}"
+      },
+      "uiBackendDefinition": {
+        "value": {
+          "settings": [
+            {
+              "name": "AppSettings__AiServices__ApiVersion",
+              "value": "2024-02-01"
+            },
+            {
+              "name": "AppSettings__AiServices__ModelVersion",
+              "value": "2023-04-15"
+            },
+            {
+              "name": "",
+              "value": "${VAR}",
+              "_comment_name": "The name of the environment variable when running in Azure. If empty, ignored.",
+              "_comment_value": "The value to provide. This can be a fixed literal, or an expression like ${VAR} to use the value of 'VAR' from the current environment."
+            },
+            {
+              "name": "",
+              "value": "${VAR_S}",
+              "secret": true,
+              "_comment_name": "The name of the environment variable when running in Azure. If empty, ignored.",
+              "_comment_value": "The value to provide. This can be a fixed literal, or an expression like ${VAR_S} to use the value of 'VAR_S' from the current environment."
+            }
+          ]
+        }
+      },
+      "uiFrontendExists": {
+        "value": "${SERVICE_UI_FRONTEND_RESOURCE_EXISTS=false}"
+      },
+      "uiFrontendDefinition": {
+        "value": {
+          "settings": [
+            {
+              "name": "",
+              "value": "${VAR}",
+              "_comment_name": "The name of the environment variable when running in Azure. If empty, ignored.",
+              "_comment_value": "The value to provide. This can be a fixed literal, or an expression like ${VAR} to use the value of 'VAR' from the current environment."
+            },
+            {
+              "name": "",
+              "value": "${VAR_S}",
+              "secret": true,
+              "_comment_name": "The name of the environment variable when running in Azure. If empty, ignored.",
+              "_comment_value": "The value to provide. This can be a fixed literal, or an expression like ${VAR_S} to use the value of 'VAR_S' from the current environment."
+            }
+          ]
+        }
+      },
+      "principalId": {
+        "value": "${AZURE_PRINCIPAL_ID}"
+      }
+    }
+}
