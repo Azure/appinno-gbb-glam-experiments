@@ -69,6 +69,7 @@ jobs:
       with:
         node-version: 18.x
         cache: 'npm'
+        cache-dependency-path: './reference-implementations/semantic-search-for-images/src/ui-frontend/package-lock.json'
     - name: Clean install for dependencies
       run: npm ci
     - name: Build
