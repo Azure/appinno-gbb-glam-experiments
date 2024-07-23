@@ -12,7 +12,6 @@ This repository contains several samples in support of cultural institution use 
 - [Creating an Azure AI Search index including multi-modal image embeddings (vectors)](./experiments/create-search-index/README.md)
 - [Searching for most semantically similar images given an image or text](./experiments/semantic-search-with-images/README.md)
 - [Leveraging an LLM with vision to identify works of art in a broader image](./experiments/art-detection-by-llm/README.md)
-- [Generating meaningful, accessible descriptions of art](./experiments/art-descriptions/README.md)
 
 ---
 
