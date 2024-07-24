@@ -63,7 +63,8 @@ namespace ui_backend.Controllers
                 || Request.ContentType.Contains("image/jpeg", StringComparison.InvariantCultureIgnoreCase)
                 || Request.ContentType.Contains("image/gif", StringComparison.InvariantCultureIgnoreCase))
             {
-                _logger.LogInformation($"Content-Type: {Request.ContentType}. Passing request body directly to generate embeddings.");
+                var sanitizedContentType = Request.ContentType.Replace(Environment.NewLine, "").Replace("\n", "").Replace("\r", "");
+                _logger.LogInformation($"Content-Type: {sanitizedContentType}. Passing request body directly to generate embeddings.");
                 // Assume the body is an image stream and directly pass along...
                 queryEmbeddings = await _imageService.GenerateImageEmbeddings(Request.Body);
             }
