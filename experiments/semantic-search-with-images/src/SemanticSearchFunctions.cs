@@ -58,7 +58,8 @@ public class SemanticSearchFunctions(
             || req.ContentType.Contains("image/jpeg", StringComparison.InvariantCultureIgnoreCase)
             || req.ContentType.Contains("image/gif", StringComparison.InvariantCultureIgnoreCase))
         {
-            _logger.LogInformation($"Content-Type: {req.ContentType}. Passing request body directly to generate embeddings.");
+            var sanitizedContentType = req.ContentType.Replace(Environment.NewLine, "").Replace("\n", "").Replace("\r", "");
+            _logger.LogInformation($"Content-Type: {sanitizedContentType}. Passing request body directly to generate embeddings.");
             // Assume the body is an image stream and directly pass along...
             queryEmbeddings = await GenerateEmbeddingsFromImage(req.Body, req.ContentLength);
         }
