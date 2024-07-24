@@ -46,7 +46,7 @@ namespace ingestion {
                 try {
                     _logger.LogInformation($"Processing blob: {blobItem.Name}");
 
-                    MemoryStream memoryStream = new MemoryStream();
+                    using var memoryStream = new MemoryStream();
                     await _blobService.DownloadImageCsvBlob(blobItem.Name, memoryStream);
 
                     records = _csvService.GetRecords(memoryStream);

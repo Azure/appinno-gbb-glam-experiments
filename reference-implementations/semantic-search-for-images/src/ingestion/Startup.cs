@@ -8,8 +8,6 @@ using ingestion.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Polly;
-using Polly.Retry;
 
 public class Startup
 {
@@ -46,23 +44,13 @@ public class Startup
         services.AddTransient<IBlobService, BlobService>();
         services.AddTransient<ICsvService, CsvService>();
         services.AddTransient<IImageService, ImageService>();
-        services.AddHttpClient();
         services.AddSingleton<TokenCredential>(credential);
+        services.AddHttpClient(Constants.NAMED_HTTP_CLIENT_GENERAL).AddStandardResilienceHandler();
         services.AddHttpClient(Constants.NAMED_HTTP_CLIENT_AI_SERVICES, c =>
         {
             c.BaseAddress = new Uri(appSettings.AiServices.Uri);   
-        });
-        services.AddResiliencePipeline(Constants.NAMED_RESILIENCE_PIPELINE, builder =>
-        {
-            builder
-                .AddRetry(new RetryStrategyOptions{
-                    MaxRetryAttempts = 3,
-                    Delay = TimeSpan.FromSeconds(2),
-                    BackoffType = DelayBackoffType.Linear
-                
-                })
-                .AddTimeout(TimeSpan.FromSeconds(10));
-        });
+        })
+        .AddStandardResilienceHandler();
     }
 
     private void ValidateAppSettings(AppSettings appSettings) {
