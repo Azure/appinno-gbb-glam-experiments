@@ -45,12 +45,7 @@ public class Startup
         services.AddTransient<ICsvService, CsvService>();
         services.AddTransient<IImageService, ImageService>();
         services.AddSingleton<TokenCredential>(credential);
-        services.AddHttpClient(Constants.NAMED_HTTP_CLIENT_GENERAL).AddStandardResilienceHandler();
-        services.AddHttpClient(Constants.NAMED_HTTP_CLIENT_AI_SERVICES, c =>
-        {
-            c.BaseAddress = new Uri(appSettings.AiServices.Uri);   
-        })
-        .AddStandardResilienceHandler();
+        services.AddHttpClient(Constants.NAMED_HTTP_CLIENT).AddStandardResilienceHandler();
     }
 
     private void ValidateAppSettings(AppSettings appSettings) {

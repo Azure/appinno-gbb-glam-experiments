@@ -15,7 +15,6 @@ namespace ingestion.Services
         private ILogger<ImageService> _logger;
         private AppSettings _appSettings;
         private HttpClient _httpClient;
-        private HttpClient _aiServicesHttpClient;
         private TokenCredential _tokenCredential;
 
         /// <summary>
@@ -28,8 +27,7 @@ namespace ingestion.Services
         {
             _logger = loggerFactory.CreateLogger<ImageService>();
             _appSettings = appSettings;
-            _httpClient = httpClientFactory.CreateClient(Constants.NAMED_HTTP_CLIENT_GENERAL);
-            _aiServicesHttpClient = httpClientFactory.CreateClient(Constants.NAMED_HTTP_CLIENT_AI_SERVICES);
+            _httpClient = httpClientFactory.CreateClient(Constants.NAMED_HTTP_CLIENT);
             _tokenCredential = tokenCredential;
         }
         
@@ -88,9 +86,9 @@ namespace ingestion.Services
             // Obtain a token from the token credential before making the call to the Vision endpoint so that appropriate token refresh can take place, if necessary.
             var tokenResult = await _tokenCredential.GetTokenAsync(new TokenRequestContext(["https://cognitiveservices.azure.com/"]), CancellationToken.None);
 
-            _aiServicesHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResult.Token);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResult.Token);
             
-            using HttpResponseMessage response = await _aiServicesHttpClient.PostAsync(
+            using HttpResponseMessage response = await _httpClient.PostAsync(
                 $"{_appSettings.AiServices.Uri}/computervision/retrieval:vectorizeImage?api-version={_appSettings.AiServices.ApiVersion}&model-version={_appSettings.AiServices.ModelVersion}",
                 requestContent);
 

@@ -14,7 +14,6 @@ namespace ui_backend.Services
         private ILogger<ImageService> _logger;
         private AppSettings _appSettings;
         private HttpClient _aiServicesHttpClient;
-        private ResiliencePipeline _resiliencePipeline;
         private TokenCredential _tokenCredential;
         private const string EMBEDDING_TYPE_IMAGE = "vectorizeImage";
         private const string EMBEDDING_TYPE_TEXT = "vectorizeText";
@@ -26,12 +25,11 @@ namespace ui_backend.Services
         /// <param name="appSettings">The application settings.</param>
         /// <param name="httpClientFactory">The HTTP client factory.</param>
         /// <param name="resiliencePipeline">The Polly.Net resilience pipeline.</param>
-        public ImageService(ILogger<ImageService> logger, AppSettings appSettings, IHttpClientFactory httpClientFactory, [FromKeyedServices(Constants.NAMED_RESILIENCE_PIPELINE)] ResiliencePipeline resiliencePipeline, TokenCredential tokenCredential)
+        public ImageService(ILogger<ImageService> logger, AppSettings appSettings, IHttpClientFactory httpClientFactory, TokenCredential tokenCredential)
         {
             _logger = logger;
             _appSettings = appSettings;
-            _aiServicesHttpClient = httpClientFactory.CreateClient(Constants.NAMED_HTTP_CLIENT_AI_SERVICES);
-            _resiliencePipeline = resiliencePipeline;
+            _aiServicesHttpClient = httpClientFactory.CreateClient(Constants.NAMED_HTTP_CLIENT);
             _tokenCredential = tokenCredential;
         }
 
@@ -69,34 +67,28 @@ namespace ui_backend.Services
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         private async Task<float []> GenerateImageEmbeddings(HttpContent requestContent, string embeddingType) {
-            return await _resiliencePipeline.ExecuteAsync(async token => {
+            // Obtain a token from the token credential before making the call to the Vision endpoint so that appropriate token refresh can take place, if necessary.
+            var tokenResult = await _tokenCredential.GetTokenAsync(new TokenRequestContext(["https://cognitiveservices.azure.com/"]), CancellationToken.None);
 
-                // Obtain a token from the token credential before making the call to the Vision endpoint so that appropriate token refresh can take place, if necessary.
-                var tokenResult = await _tokenCredential.GetTokenAsync(new TokenRequestContext(["https://cognitiveservices.azure.com/"]), CancellationToken.None);
+            _aiServicesHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResult.Token);
+            
+            using HttpResponseMessage response = await _aiServicesHttpClient.PostAsync(
+                $"{_appSettings.AiServices.Uri}/computervision/retrieval:{embeddingType}?api-version={_appSettings.AiServices.ApiVersion}&model-version={_appSettings.AiServices.ModelVersion}",
+                requestContent);
 
-                _aiServicesHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResult.Token);
-                
-                using HttpResponseMessage response = await _aiServicesHttpClient.PostAsync(
-                    $"{_appSettings.AiServices.Uri}/computervision/retrieval:{embeddingType}?api-version={_appSettings.AiServices.ApiVersion}&model-version={_appSettings.AiServices.ModelVersion}",
-                    requestContent);
+            if(!response.IsSuccessStatusCode) {
+                if(requestContent is StreamContent streamContent)
+                    throw new Exception($"Error generating embeddings for stream content. Status code: {response.StatusCode}");
+                else if(requestContent is StringContent stringContent)
+                    throw new Exception($"Error generating embeddings for {await stringContent.ReadAsStringAsync()}. Status code: {response.StatusCode}; Reason: {response.ReasonPhrase}");
+                else
+                    throw new Exception($"Error generating embeddings. Status code: {response.StatusCode}");
+            }
 
-                response.EnsureSuccessStatusCode();
+            var embeddingsResponse = await response.Content.ReadFromJsonAsync<MultimodalEmbeddingsApiResponse>()
+                ?? throw new Exception("Response not received or could not be serialized as expected.");
 
-                if(!response.IsSuccessStatusCode) {
-                    if(requestContent is StreamContent streamContent)
-                        throw new Exception($"Error generating embeddings for stream content. Status code: {response.StatusCode}");
-                    else if(requestContent is StringContent stringContent)
-                        throw new Exception($"Error generating embeddings for {await stringContent.ReadAsStringAsync()}. Status code: {response.StatusCode}; Reason: {response.ReasonPhrase}");
-                    else
-                        throw new Exception($"Error generating embeddings. Status code: {response.StatusCode}");
-                }
-
-                var embeddingsResponse = await response.Content.ReadFromJsonAsync<MultimodalEmbeddingsApiResponse>()
-                    ?? throw new Exception("Response not received or could not be serialized as expected.");
-
-                return embeddingsResponse.Vector;
-
-            });
+            return embeddingsResponse.Vector;
         }
 
         private void CheckForNullImageUrl(string imageUrl) {
