@@ -3,9 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Azure.Core;
 using ingestion.Models;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Polly;
 
 namespace ingestion.Services
 {
@@ -18,7 +16,6 @@ namespace ingestion.Services
         private AppSettings _appSettings;
         private HttpClient _httpClient;
         private HttpClient _aiServicesHttpClient;
-        private ResiliencePipeline _resiliencePipeline;
         private TokenCredential _tokenCredential;
 
         /// <summary>
@@ -27,14 +24,12 @@ namespace ingestion.Services
         /// <param name="loggerFactory">The logger factory.</param>
         /// <param name="appSettings">The application settings.</param>
         /// <param name="httpClientFactory">The HTTP client factory.</param>
-        /// <param name="resiliencePipeline">The Polly.Net resilience pipeline.</param>
-        public ImageService(ILoggerFactory loggerFactory, AppSettings appSettings, IHttpClientFactory httpClientFactory, [FromKeyedServices(Constants.NAMED_RESILIENCE_PIPELINE)] ResiliencePipeline resiliencePipeline, TokenCredential tokenCredential)
+        public ImageService(ILoggerFactory loggerFactory, AppSettings appSettings, IHttpClientFactory httpClientFactory, TokenCredential tokenCredential)
         {
             _logger = loggerFactory.CreateLogger<ImageService>();
             _appSettings = appSettings;
-            _httpClient = httpClientFactory.CreateClient();
+            _httpClient = httpClientFactory.CreateClient(Constants.NAMED_HTTP_CLIENT_GENERAL);
             _aiServicesHttpClient = httpClientFactory.CreateClient(Constants.NAMED_HTTP_CLIENT_AI_SERVICES);
-            _resiliencePipeline = resiliencePipeline;
             _tokenCredential = tokenCredential;
         }
         
@@ -45,19 +40,15 @@ namespace ingestion.Services
         /// <returns>A stream containing the downloaded image.</returns>
         public async Task<Stream> DownloadImage(string imageUrl) {
             CheckForNullImageUrl(imageUrl);
-            
-            return await _resiliencePipeline.ExecuteAsync(async token => {
 
-                _logger.LogInformation($"Downloading image from: {imageUrl}");
+            _logger.LogInformation($"Downloading image from: {imageUrl}");
 
-                var imageResponse = await _httpClient.GetAsync(imageUrl);
-                imageResponse.EnsureSuccessStatusCode();
+            var imageResponse = await _httpClient.GetAsync(imageUrl);
+            imageResponse.EnsureSuccessStatusCode();
 
-                _logger.LogInformation($"Downloaded image from: {imageUrl}");
+            _logger.LogInformation($"Downloaded image from: {imageUrl}");
 
-                return await imageResponse.Content.ReadAsStreamAsync();
-
-            });
+            return await imageResponse.Content.ReadAsStreamAsync();
         }
 
         /// <summary>
@@ -94,34 +85,28 @@ namespace ingestion.Services
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         private async Task<float []> GenerateImageEmbeddings(HttpContent requestContent) {
-            return await _resiliencePipeline.ExecuteAsync(async token => {
+            // Obtain a token from the token credential before making the call to the Vision endpoint so that appropriate token refresh can take place, if necessary.
+            var tokenResult = await _tokenCredential.GetTokenAsync(new TokenRequestContext(["https://cognitiveservices.azure.com/"]), CancellationToken.None);
 
-                // Obtain a token from the token credential before making the call to the Vision endpoint so that appropriate token refresh can take place, if necessary.
-                var tokenResult = await _tokenCredential.GetTokenAsync(new TokenRequestContext(["https://cognitiveservices.azure.com/"]), CancellationToken.None);
+            _aiServicesHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResult.Token);
+            
+            using HttpResponseMessage response = await _aiServicesHttpClient.PostAsync(
+                $"{_appSettings.AiServices.Uri}/computervision/retrieval:vectorizeImage?api-version={_appSettings.AiServices.ApiVersion}&model-version={_appSettings.AiServices.ModelVersion}",
+                requestContent);
 
-                _aiServicesHttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResult.Token);
-                
-                using HttpResponseMessage response = await _aiServicesHttpClient.PostAsync(
-                    $"{_appSettings.AiServices.Uri}/computervision/retrieval:vectorizeImage?api-version={_appSettings.AiServices.ApiVersion}&model-version={_appSettings.AiServices.ModelVersion}",
-                    requestContent);
+            if(!response.IsSuccessStatusCode) {
+                if(requestContent is StreamContent streamContent)
+                    throw new Exception($"Error generating embeddings for stream content. Status code: {response.StatusCode}");
+                else if(requestContent is StringContent stringContent)
+                    throw new Exception($"Error generating embeddings for {await stringContent.ReadAsStringAsync()}. Status code: {response.StatusCode}; Reason: {response.ReasonPhrase}");
+                else
+                    throw new Exception($"Error generating embeddings. Status code: {response.StatusCode}");
+            }
 
-                response.EnsureSuccessStatusCode();
+            var embeddingsResponse = await response.Content.ReadFromJsonAsync<MultimodalEmbeddingsApiResponse>()
+                ?? throw new Exception("Response not received or could not be serialized as expected.");
 
-                if(!response.IsSuccessStatusCode) {
-                    if(requestContent is StreamContent streamContent)
-                        throw new Exception($"Error generating embeddings for stream content. Status code: {response.StatusCode}");
-                    else if(requestContent is StringContent stringContent)
-                        throw new Exception($"Error generating embeddings for {await stringContent.ReadAsStringAsync()}. Status code: {response.StatusCode}; Reason: {response.ReasonPhrase}");
-                    else
-                        throw new Exception($"Error generating embeddings. Status code: {response.StatusCode}");
-                }
-
-                var embeddingsResponse = await response.Content.ReadFromJsonAsync<MultimodalEmbeddingsApiResponse>()
-                    ?? throw new Exception("Response not received or could not be serialized as expected.");
-
-                return embeddingsResponse.Vector;
-
-            });
+            return embeddingsResponse.Vector;
         }
 
         private void CheckForNullImageUrl(string imageUrl) {

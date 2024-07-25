@@ -35,6 +35,7 @@ namespace ingestion.Services
             // Connect to a cosmos db container using DefaultAzureCredential
             var cosmosClient = new CosmosClient(_appSettings.CosmosDb.Uri, new DefaultAzureCredential());
             var cosmosDb = await cosmosClient.CreateDatabaseIfNotExistsAsync(_appSettings.CosmosDb.Database);
+
             List<Embedding> embeddings = new List<Embedding>()
             {
                 new Embedding()
@@ -45,7 +46,9 @@ namespace ingestion.Services
                     Dimensions = 1024
                 }
             };
+
             Collection<Embedding> collection = new Collection<Embedding>(embeddings);
+            
             ContainerProperties containerProperties = new ContainerProperties(id: _appSettings.CosmosDb.ImageMetadataContainer, partitionKeyPath: _appSettings.CosmosDb.PartitionKey)
             {   
                 VectorEmbeddingPolicy = new(collection),
