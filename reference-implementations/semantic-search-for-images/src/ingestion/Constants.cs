@@ -9,7 +9,6 @@ namespace ingestion
         public const string DATA_TABLE_COLUMN_NAME_ARTIST = "artist";
         public const string DATA_TABLE_COLUMN_NAME_TITLE = "title";
         public const string DATA_TABLE_COLUMN_NAME_CREATION_DATE = "creationDate";
-        public const string NAMED_HTTP_CLIENT_AI_SERVICES = "AiServices";
-        public const string NAMED_HTTP_CLIENT_GENERAL = "General";
+        public const string NAMED_HTTP_CLIENT = "General";
     }
 }
