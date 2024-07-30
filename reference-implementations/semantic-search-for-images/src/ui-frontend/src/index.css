@@ -19,6 +19,11 @@ body {
   color: var(--primary-color);
 }
 
+/* Remove default text from file input */
+input[type='file'] {
+  color: transparent;
+}
+
 /* common css starts */
 
 .container {
