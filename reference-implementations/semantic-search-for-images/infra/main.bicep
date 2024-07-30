@@ -326,3 +326,4 @@ output AZURE_KEY_VAULT_ENDPOINT string = keyVault.outputs.endpoint
 output AZURE_RESOURCE_GROUP string = rg.name
 output SERVICE_INGESTION_JOB_NAME string = ingestion.outputs.name
 output SERVICE_UI_BACKEND_ENDPOINT string = uiBackend.outputs.uri
+output STORAGE_UPLOAD_CONTAINER_URI string = 'https://portal.azure.com/#@${tenant().displayName}/resource${subscription().id}/resourceGroups/${rg.name}/providers/Microsoft.Storage/storageAccounts/${storage.outputs.name}/containersList'

@@ -48,3 +48,9 @@ $null = az containerapp job start --output none --only-show-errors `
 # Success!
 Write-Host "  (✓) Done: " -ForegroundColor Green -NoNewLine
 Write-Host "Deploying ingestion service"
+
+# Print out the storage account URI for easy access
+$storage_upload_container_uri = azd env get-value STORAGE_UPLOAD_CONTAINER_URI
+Write-Host ""
+Write-Host ("Upload your CSV file to seed your data - visit the **images** container and select **Upload**:" | ConvertFrom-Markdown -AsVT100EncodedString).VT100EncodedString
+Write-Host "  $storage_upload_container_uri"
