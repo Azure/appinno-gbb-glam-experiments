@@ -55,3 +55,8 @@ az containerapp job start --output none --only-show-errors \
 
 # Success!
 echo "  \033[0;32m(✓) Done:\033[0m Deploying ingestion service"
+
+# Print out the storage account URI for easy access
+echo ""
+echo "Upload your CSV file to seed your data - visit the \033[1mimages\033[0m container and select \033[1mUpload\033[0m:"
+echo "  ${STORAGE_UPLOAD_CONTAINER_URI}"
