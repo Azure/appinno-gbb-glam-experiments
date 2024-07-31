@@ -1,3 +1,4 @@
+using Azure.Core;
 using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Models;
@@ -17,10 +18,10 @@ namespace ui_backend.Services
         /// Initializes a new instance of the <see cref="AiSearchService"/> class.
         /// </summary>
         /// <param name="appSettings">The application settings.</param>
-        public AiSearchService(AppSettings appSettings)
+        public AiSearchService(AppSettings appSettings, TokenCredential tokenCredential)
         {
             _appSettings = appSettings;
-            _searchClient = new SearchClient(new Uri(_appSettings.AiSearch.Uri), _appSettings.AiSearch.Index, new DefaultAzureCredential());
+            _searchClient = new SearchClient(new Uri(_appSettings.AiSearch.Uri), _appSettings.AiSearch.Index, tokenCredential);
         }
 
         /// <summary>

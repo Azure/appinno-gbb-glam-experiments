@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Azure.Core;
 using Azure.Identity;
 using ingestion.Models;
 using Microsoft.Azure.Cosmos;
@@ -14,16 +15,18 @@ namespace ingestion.Services
         private AppSettings _appSettings;
         private ILogger<CosmosDbService> _logger;
         private ContainerResponse? _containerResponse;
+        private TokenCredential _tokenCredential;
 
         /// <summary>
         /// Initializes a new instance of the CosmosDbService class.
         /// </summary>
         /// <param name="loggerFactory">The logger factory.</param>
         /// <param name="appSettings">The application settings.</param>
-        public CosmosDbService(ILoggerFactory loggerFactory, AppSettings appSettings)
+        public CosmosDbService(ILoggerFactory loggerFactory, AppSettings appSettings, TokenCredential tokenCredential)
         {
             _logger = loggerFactory.CreateLogger<CosmosDbService>();
-            _appSettings = appSettings;            
+            _appSettings = appSettings;
+            _tokenCredential = tokenCredential;
         }
 
         /// <summary>
@@ -33,7 +36,7 @@ namespace ingestion.Services
         public async Task InitializeAsync()
         {
             // Connect to a cosmos db container using DefaultAzureCredential
-            var cosmosClient = new CosmosClient(_appSettings.CosmosDb.Uri, new DefaultAzureCredential());
+            var cosmosClient = new CosmosClient(_appSettings.CosmosDb.Uri, _tokenCredential);
             var cosmosDb = await cosmosClient.CreateDatabaseIfNotExistsAsync(_appSettings.CosmosDb.Database);
 
             List<Embedding> embeddings = new List<Embedding>()

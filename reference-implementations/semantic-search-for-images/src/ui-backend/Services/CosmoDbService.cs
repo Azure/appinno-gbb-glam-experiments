@@ -1,3 +1,4 @@
+using Azure.Core;
 using Azure.Identity;
 using Microsoft.Azure.Cosmos;
 using ui_backend.Models;
@@ -16,10 +17,10 @@ namespace ui_backend.Services
         /// Initializes a new instance of the <see cref="CosmoDbService"/> class.
         /// </summary>
         /// <param name="appsSettings">The application settings.</param>
-        public CosmoDbService(AppSettings appsSettings)
+        public CosmoDbService(AppSettings appsSettings, TokenCredential tokenCredential)
         {
             _appSettings = appsSettings;
-            var cosmosClient = new CosmosClient(_appSettings.CosmosDb.Uri, new DefaultAzureCredential());
+            var cosmosClient = new CosmosClient(_appSettings.CosmosDb.Uri, tokenCredential);
             _cosmosContainer = cosmosClient.GetContainer(_appSettings.CosmosDb.Database, _appSettings.CosmosDb.ImageMetadataContainer);
         }
 

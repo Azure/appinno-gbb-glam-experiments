@@ -29,7 +29,7 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         var appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
-        var credential = new ChainedTokenCredential(new AzureCliCredential(), new ManagedIdentityCredential(clientId: Configuration["AZURE_CLIENT_ID"]));
+        var credential = new DefaultAzureCredential(GenerateDefaultAzureCredentialOptions());
 
         services.AddLogging(builder => builder.AddConsole());
         services.AddSingleton(appSettings!);
@@ -40,7 +40,7 @@ public class Startup
         else if(appSettings!.DatabaseTargeted == Constants.DATABASE_TARGETED_AI_SEARCH)
             services.AddTransient<IDatabaseService, AiSearchService>();
 
-        services.AddSingleton(new BlobServiceClient(new Uri(appSettings!.StorageAccount.Uri), new DefaultAzureCredential()));
+        services.AddSingleton(new BlobServiceClient(new Uri(appSettings!.StorageAccount.Uri), credential));
         services.AddTransient<IBlobService, BlobService>();
         services.AddTransient<ICsvService, CsvService>();
         services.AddTransient<IImageService, ImageService>();
@@ -147,5 +147,21 @@ public class Startup
         
         if(settingsMissing)
             throw new Exception(sb.ToString());
+    }
+
+    /// <summary>
+    /// Instantiates DefaultAzureCredentialOptions to be used by DefaultAzureCredential. The exclude flags are set to ensure that only
+    /// the ManagedIdentityCredential (User Assigned) or AzureCliCredential are used.
+    /// </summary>
+    /// <returns></returns>
+    private DefaultAzureCredentialOptions GenerateDefaultAzureCredentialOptions() {
+        return new DefaultAzureCredentialOptions { ManagedIdentityClientId = Configuration["AZURE_CLIENT_ID"],
+                                                   ExcludeInteractiveBrowserCredential = true,
+                                                   ExcludeSharedTokenCacheCredential = true,
+                                                   ExcludeVisualStudioCodeCredential = true,
+                                                   ExcludeVisualStudioCredential = true,
+                                                   ExcludeEnvironmentCredential = true,
+                                                   ExcludeAzurePowerShellCredential = true,
+                                                   ExcludeWorkloadIdentityCredential = true };
     }
 }
