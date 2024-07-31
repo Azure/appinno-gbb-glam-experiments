@@ -10,7 +10,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var credential = new ChainedTokenCredential(new AzureCliCredential(), new ManagedIdentityCredential(clientId: Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")));
+/// Instantiates DefaultAzureCredentialOptions to be used by DefaultAzureCredential. The exclude flags are set to ensure that only
+/// the ManagedIdentityCredential (User Assigned) or AzureCliCredential are used.
+var credentialOptions = new DefaultAzureCredentialOptions { ManagedIdentityClientId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID"),
+                                                            ExcludeInteractiveBrowserCredential = true,
+                                                            ExcludeSharedTokenCacheCredential = true,
+                                                            ExcludeVisualStudioCodeCredential = true,
+                                                            ExcludeVisualStudioCredential = true,
+                                                            ExcludeEnvironmentCredential = true,
+                                                            ExcludeAzurePowerShellCredential = true,
+                                                            ExcludeWorkloadIdentityCredential = true };
+
+var credential = new DefaultAzureCredential(credentialOptions);
 var appSettings = builder.Configuration.GetSection("AppSettings").Get<AppSettings>();
 
 builder.Services.AddSingleton(appSettings!);

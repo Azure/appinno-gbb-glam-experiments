@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Azure.Core;
 using Azure.Identity;
 using Azure.Search.Documents;
 using Azure.Search.Documents.Indexes;
@@ -14,17 +15,19 @@ namespace ingestion.Services
         private AppSettings _appSettings;
         private ILogger<AiSearchService> _logger;
         private SearchClient _searchClient;
+        private TokenCredential _tokenCredential;
 
-        public AiSearchService(ILoggerFactory loggerFactory, AppSettings appSettings)
+        public AiSearchService(ILoggerFactory loggerFactory, AppSettings appSettings, TokenCredential tokenCredential)
         {
             _logger = loggerFactory.CreateLogger<AiSearchService>();
             _appSettings = appSettings;
-            _searchClient = new(new Uri(_appSettings.AiSearch.Uri), _appSettings.AiSearch.Index, new DefaultAzureCredential());
+            _tokenCredential = tokenCredential;
+            _searchClient = new(new Uri(_appSettings.AiSearch.Uri), _appSettings.AiSearch.Index, _tokenCredential);
         }
 
         public async Task InitializeAsync()
         {   
-            var indexClient = new SearchIndexClient(new Uri(_appSettings.AiSearch.Uri), new DefaultAzureCredential());
+            var indexClient = new SearchIndexClient(new Uri(_appSettings.AiSearch.Uri), _tokenCredential);
             
             SearchIndex index = new SearchIndex(_appSettings.AiSearch.Index)
             {
